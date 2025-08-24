@@ -4,6 +4,10 @@ import com.github.lorenzolacognata.simquity.agent.Agent;
 import com.github.lorenzolacognata.simquity.agent.Household;
 import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.agent.Person;
+import com.github.lorenzolacognata.simquity.asset.Asset;
+import com.github.lorenzolacognata.simquity.asset.Currency;
+import com.github.lorenzolacognata.simquity.asset.Good;
+import com.github.lorenzolacognata.simquity.asset.UnitOfMeasure;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -20,9 +24,6 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
 
-        final Label label = new Label();
-        root.getChildren().add(label);
-
         final List<Agent> agents = new ArrayList<>();
 
         agents.add(
@@ -35,7 +36,18 @@ public class MainApplication extends Application {
             )
         );
 
-        label.setText(agents.toString());
+        final List<Asset> assets = new ArrayList<>();
+
+        assets.add(
+                new Good("Wheat Seeds", UnitOfMeasure.KILOGRAM)
+        );
+        assets.add(
+                new Currency("Dollar")
+        );
+
+        final Label label = new Label();
+        label.setText(agents + "\n\n" + assets);
+        root.getChildren().add(label);
 
         launch();
     }
