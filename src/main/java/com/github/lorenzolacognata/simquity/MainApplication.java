@@ -8,6 +8,7 @@ import com.github.lorenzolacognata.simquity.asset.Asset;
 import com.github.lorenzolacognata.simquity.asset.Currency;
 import com.github.lorenzolacognata.simquity.asset.Good;
 import com.github.lorenzolacognata.simquity.asset.UnitOfMeasure;
+import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -24,6 +25,15 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
 
+        final List<Asset> assets = new ArrayList<>();
+
+        assets.add(
+                new Good("Wheat Seeds", 104, UnitOfMeasure.KILOGRAM)
+        );
+        assets.add(
+                new Currency("Dollar")
+        );
+
         final List<Agent> agents = new ArrayList<>();
 
         agents.add(
@@ -36,17 +46,23 @@ public class MainApplication extends Application {
             )
         );
 
-        final List<Asset> assets = new ArrayList<>();
+        List<Currency> currencies = assets.stream()
+            .filter(a -> a instanceof Currency)
+            .map(a -> (Currency) a)
+            .toList();
 
-        assets.add(
-                new Good("Wheat Seeds", UnitOfMeasure.KILOGRAM)
-        );
-        assets.add(
-                new Currency("Dollar")
-        );
+        for (Agent agent : agents) {
+            for (Currency currency : currencies) {
+                agent.addPurchasedAgentAsset(new AgentAsset(currency));
+            }
+        }
 
         final Label label = new Label();
-        label.setText(agents + "\n\n" + assets);
+        label.setText(label.getText() + "\n\n" + assets);
+        label.setText(label.getText() + "\n\n" + agents);
+        for (Agent agent : agents) {
+            label.setText(label.getText() + "\n\n" + agent + ":" + agent.getPurchasedAgentAssetList());
+        }
         root.getChildren().add(label);
 
         launch();
