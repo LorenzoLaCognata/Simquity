@@ -6,6 +6,7 @@ import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.agent.Person;
 import com.github.lorenzolacognata.simquity.asset.*;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
+import com.github.lorenzolacognata.simquity.labor.Employment;
 import com.github.lorenzolacognata.simquity.labor.Job;
 import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
 import javafx.application.Application;
@@ -24,12 +25,15 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
 
+
         final List<Job> jobs = new ArrayList<>();
 
         Job farmer = new Job("Farmer");
         jobs.add(farmer);
 
         System.out.println("\nJOBS:\n"+farmer);
+
+
 
         final List<Asset> assets = new ArrayList<>();
 
@@ -46,6 +50,53 @@ public class MainApplication extends Application {
         assets.add(dollar);
 
         System.out.println("\nASSETS:\n"+assets);
+
+
+
+        final List<Agent> agents = new ArrayList<>();
+
+        Person johnDoe = new Person("John", "Doe");
+        Person janeDoe = new Person("Jane", "Doe");
+
+        agents.add(
+            new Household(List.of(johnDoe, janeDoe))
+        );
+
+        Organization wheatFarming = new Organization("Wheat Farming");
+        agents.add(wheatFarming);
+
+        System.out.println("\nAGENTS:\n"+agents);
+
+
+        Employment johnDoeWheatFarming = new Employment(johnDoe, farmer, 12.0, 12.0);
+        wheatFarming.addEmployment(johnDoeWheatFarming);
+
+        System.out.println("\nEMPLOYMENTS:");
+
+        for (Agent agent : agents) {
+            if (agent instanceof Organization) {
+                System.out.println(agent + ": " + ((Organization) agent).getEmploymentList());
+            }
+        }
+
+
+        List<Currency> currencies = assets.stream()
+                .filter(a -> a instanceof Currency)
+                .map(a -> (Currency) a)
+                .toList();
+
+        for (Agent agent : agents) {
+            for (Currency currency : currencies) {
+                agent.addPurchasedAgentAsset(new AgentAsset(currency));
+            }
+        }
+
+        System.out.println("\nPURCHASED AGENT ASSET LIST:");
+        for (Agent agent : agents) {
+            System.out.println(agent + ":" + agent.getPurchasedAgentAssetList());
+        }
+
+
 
         AssetProduction wheatProduction = new AssetProduction(38, 43, 16, 5.0);
         wheat.addAssetProductionList(wheatProduction);
@@ -76,35 +127,7 @@ public class MainApplication extends Application {
             }
         }
 
-        final List<Agent> agents = new ArrayList<>();
 
-        agents.add(
-            new Organization("Wheat Farming")
-        );
-        agents.add(
-            new Household(List.of(
-                new Person("John", "Doe"),
-                new Person("Jane", "Doe"))
-            )
-        );
-
-        System.out.println("\nAGENTS:\n"+agents);
-
-        List<Currency> currencies = assets.stream()
-            .filter(a -> a instanceof Currency)
-            .map(a -> (Currency) a)
-            .toList();
-
-        for (Agent agent : agents) {
-            for (Currency currency : currencies) {
-                agent.addPurchasedAgentAsset(new AgentAsset(currency));
-            }
-        }
-
-        System.out.println("\nPURCHASED AGENT ASSET LIST:");
-        for (Agent agent : agents) {
-            System.out.println(agent + ":" + agent.getPurchasedAgentAssetList());
-        }
 
         final Label label = new Label();
         label.setText("Simquity");
