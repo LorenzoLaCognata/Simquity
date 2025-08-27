@@ -6,6 +6,8 @@ import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.agent.Person;
 import com.github.lorenzolacognata.simquity.asset.*;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
+import com.github.lorenzolacognata.simquity.labor.Job;
+import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -21,6 +23,13 @@ public class MainApplication extends Application {
     static final Pane root = new Pane();
 
     public static void main(String[] args) {
+
+        final List<Job> jobs = new ArrayList<>();
+
+        Job farmer = new Job("Farmer");
+        jobs.add(farmer);
+
+        System.out.println("\nJOBS:\n"+farmer);
 
         final List<Asset> assets = new ArrayList<>();
 
@@ -47,6 +56,9 @@ public class MainApplication extends Application {
         AssetRequirement wheatFarmingLandRequirement = new AssetRequirement(farmingLand, 1.0, 0.0, 0.0);
         wheatProduction.addDurableAssetRequirement(wheatFarmingLandRequirement);
 
+        LaborRequirement wheatFarmerRequirement = new LaborRequirement(farmer, 0.05, 40.0);
+        wheatProduction.addLaborRequirement(wheatFarmerRequirement);
+
         System.out.println("\nASSET PRODUCTION:");
         for (Asset asset : assets) {
             System.out.println(asset);
@@ -57,6 +69,9 @@ public class MainApplication extends Application {
                 }
                 for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
                     System.out.println(durableAssetRequirement);
+                }
+                for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
+                    System.out.println(laborRequirement);
                 }
             }
         }

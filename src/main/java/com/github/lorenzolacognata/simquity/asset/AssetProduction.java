@@ -1,6 +1,6 @@
 package com.github.lorenzolacognata.simquity.asset;
 
-import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
+import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ public class AssetProduction {
     private final double outputQuantity;
     private final List<AssetRequirement> consumableAssetRequirementList;
     private final List<AssetRequirement> durableAssetRequirementList;
-    // laborQuantityList
+    private final List<LaborRequirement> laborRequirementList;
 
     public AssetProduction(int minStartDate, int maxStartDate, int duration, double outputQuantity) {
         this.minStartDate = minStartDate;
@@ -22,6 +22,7 @@ public class AssetProduction {
         this.outputQuantity = outputQuantity;
         this.consumableAssetRequirementList = new ArrayList<>();
         this.durableAssetRequirementList = new ArrayList<>();
+        this.laborRequirementList = new ArrayList<>();
     }
 
     public List<AssetRequirement> getConsumableAssetRequirementList() {
@@ -30,6 +31,10 @@ public class AssetProduction {
 
     public List<AssetRequirement> getDurableAssetRequirementList() {
         return durableAssetRequirementList;
+    }
+
+    public List<LaborRequirement> getLaborRequirementList() {
+        return laborRequirementList;
     }
 
     @Override
@@ -52,6 +57,14 @@ public class AssetProduction {
 
     public void addDurableAssetRequirement(AssetRequirement assetRequirement) {
         addAssetRequirement(assetRequirement, durableAssetRequirementList);
+    }
+
+    public void addLaborRequirement(LaborRequirement laborRequirement) {
+        boolean alreadyExists = laborRequirementList.stream()
+                .anyMatch(a -> a.getJob().equals(laborRequirement.getJob()));
+        if (!alreadyExists) {
+            laborRequirementList.add(laborRequirement);
+        }
     }
 
 }
