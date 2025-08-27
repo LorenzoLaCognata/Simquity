@@ -4,10 +4,7 @@ import com.github.lorenzolacognata.simquity.agent.Agent;
 import com.github.lorenzolacognata.simquity.agent.Household;
 import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.agent.Person;
-import com.github.lorenzolacognata.simquity.asset.Asset;
-import com.github.lorenzolacognata.simquity.asset.Currency;
-import com.github.lorenzolacognata.simquity.asset.Good;
-import com.github.lorenzolacognata.simquity.asset.UnitOfMeasure;
+import com.github.lorenzolacognata.simquity.asset.*;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -27,12 +24,42 @@ public class MainApplication extends Application {
 
         final List<Asset> assets = new ArrayList<>();
 
-        assets.add(
-                new Good("Wheat Seeds", 104, UnitOfMeasure.KILOGRAM)
-        );
-        assets.add(
-                new Currency("Dollar")
-        );
+        Asset wheatSeeds = new Good("Wheat Seeds", 104, UnitOfMeasure.KILOGRAM);
+        assets.add(wheatSeeds);
+
+        Asset farmingLand = new Good("Farming Land", 5200, UnitOfMeasure.HECTARE);
+        assets.add(farmingLand);
+
+        Asset wheat = new Good("Wheat", 26, UnitOfMeasure.TONNE);
+        assets.add(wheat);
+
+        Asset dollar = new Currency("Dollar");
+        assets.add(dollar);
+
+        System.out.println("\nASSETS:\n"+assets);
+
+        AssetProduction wheatProduction = new AssetProduction(38, 43, 16, 5.0);
+        wheat.addAssetProductionList(wheatProduction);
+
+        AssetRequirement wheatWheatSeedsRequirement = new AssetRequirement(wheatSeeds, 170.0, 0.0, 0.0);
+        wheatProduction.addConsumableAssetRequirement(wheatWheatSeedsRequirement);
+
+        AssetRequirement wheatFarmingLandRequirement = new AssetRequirement(farmingLand, 1.0, 0.0, 0.0);
+        wheatProduction.addDurableAssetRequirement(wheatFarmingLandRequirement);
+
+        System.out.println("\nASSET PRODUCTION:");
+        for (Asset asset : assets) {
+            System.out.println(asset);
+            for (AssetProduction assetProduction : asset.getAssetProductionList()) {
+                System.out.println(assetProduction);
+                for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
+                    System.out.println(consumableAssetRequirement);
+                }
+                for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
+                    System.out.println(durableAssetRequirement);
+                }
+            }
+        }
 
         final List<Agent> agents = new ArrayList<>();
 
@@ -46,6 +73,8 @@ public class MainApplication extends Application {
             )
         );
 
+        System.out.println("\nAGENTS:\n"+agents);
+
         List<Currency> currencies = assets.stream()
             .filter(a -> a instanceof Currency)
             .map(a -> (Currency) a)
@@ -57,12 +86,13 @@ public class MainApplication extends Application {
             }
         }
 
-        final Label label = new Label();
-        label.setText(label.getText() + "\n\n" + assets);
-        label.setText(label.getText() + "\n\n" + agents);
+        System.out.println("\nPURCHASED AGENT ASSET LIST:");
         for (Agent agent : agents) {
-            label.setText(label.getText() + "\n\n" + agent + ":" + agent.getPurchasedAgentAssetList());
+            System.out.println(agent + ":" + agent.getPurchasedAgentAssetList());
         }
+
+        final Label label = new Label();
+        label.setText("Simquity");
         root.getChildren().add(label);
 
         launch();
