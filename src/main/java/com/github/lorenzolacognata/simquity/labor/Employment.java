@@ -22,6 +22,10 @@ public class Employment {
         return person;
     }
 
+    public Job getJob() {
+        return job;
+    }
+
     @Override
     public String toString() {
         return "Employment{" + person + " - " + job + "}";

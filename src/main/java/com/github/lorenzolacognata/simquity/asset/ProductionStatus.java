@@ -1,15 +1,14 @@
 package com.github.lorenzolacognata.simquity.asset;
 
-public enum UnitOfMeasure {
+public enum ProductionStatus {
 
-    UNIT(""),
-    KILOGRAM("kg"),
-    TONNE("t"),
-    HECTARE("ha");
+    NOT_STARTED("Not Started"),
+    IN_PROGRESS("In Progress"),
+    COMPLETE("Complete");
 
     private final String name;
 
-    UnitOfMeasure(String name) {
+    ProductionStatus(String name) {
         this.name = name;
     }
 

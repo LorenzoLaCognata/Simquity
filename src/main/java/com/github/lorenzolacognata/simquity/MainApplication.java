@@ -6,6 +6,8 @@ import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.agent.Person;
 import com.github.lorenzolacognata.simquity.asset.*;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
+import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
+import com.github.lorenzolacognata.simquity.inventory.ProductionLine;
 import com.github.lorenzolacognata.simquity.labor.Employment;
 import com.github.lorenzolacognata.simquity.labor.Job;
 import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
@@ -91,9 +93,25 @@ public class MainApplication extends Application {
             }
         }
 
+        AgentAsset wheatFarmingWheatSeeds = new AgentAsset(wheatSeeds);
+        wheatFarming.addPurchasedAgentAsset(wheatFarmingWheatSeeds);
+
+        AgentAsset wheatFarmingFarmingLand = new AgentAsset(farmingLand);
+        wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingLand);
+
         System.out.println("\nPURCHASED AGENT ASSET LIST:");
         for (Agent agent : agents) {
             System.out.println(agent + ":" + agent.getPurchasedAgentAssetList());
+        }
+
+
+
+        AgentAsset wheatFarmingWheat = new AgentAsset(wheat);
+        wheatFarming.addProducedAgentAsset(wheatFarmingWheat);
+
+        System.out.println("\nPRODUCED AGENT ASSET LIST:");
+        for (Agent agent : agents) {
+        System.out.println(agent + ":" + agent.getProducedAgentAssetList());
         }
 
 
@@ -123,6 +141,38 @@ public class MainApplication extends Application {
                 }
                 for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
                     System.out.println(laborRequirement);
+                }
+            }
+        }
+
+
+
+        ProductionLine wheatProductionLine = new ProductionLine(wheatProduction, 40);
+        wheatFarmingWheat.addProductionLine(wheatProductionLine);
+
+        AssetInventory wheatFarmingWheatSeedsInventory = wheatFarmingWheatSeeds.getAssetInventoryList().getFirst();
+        wheatProductionLine.addConsumableAssetInventory(wheatFarmingWheatSeedsInventory);
+
+        AssetInventory wheatFarmingFarmingLandInventory = wheatFarmingFarmingLand.getAssetInventoryList().getFirst();
+        wheatProductionLine.addDurableAssetInventory(wheatFarmingFarmingLandInventory);
+
+        wheatProductionLine.addEmployment(johnDoeWheatFarming);
+
+        System.out.println("\nAGENT ASSET PRODUCTION LINE:");
+        for (Agent agent : agents) {
+            for (AgentAsset agentAsset : agent.getProducedAgentAssetList()) {
+                System.out.println(agentAsset);
+                for (ProductionLine assetProductionLine : agentAsset.getProductionLineList()) {
+                    System.out.println(assetProductionLine);
+                    for (AssetInventory consumableAssetInventory : assetProductionLine.getConsumableAssetInventoryList()) {
+                        System.out.println(consumableAssetInventory.getAsset() + ": " + consumableAssetInventory);
+                    }
+                    for (AssetInventory durableAssetInventory : assetProductionLine.getDurableAssetInventoryList()) {
+                        System.out.println(durableAssetInventory.getAsset() + ": " + durableAssetInventory);
+                    }
+                    for (Employment employment : assetProductionLine.getEmploymentList()) {
+                        System.out.println(employment);
+                    }
                 }
             }
         }
