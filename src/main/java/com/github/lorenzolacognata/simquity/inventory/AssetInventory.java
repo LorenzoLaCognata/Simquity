@@ -1,6 +1,7 @@
 package com.github.lorenzolacognata.simquity.inventory;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
+import com.github.lorenzolacognata.simquity.asset.Good;
 
 public class AssetInventory {
 
@@ -24,7 +25,12 @@ public class AssetInventory {
 
     @Override
     public String toString() {
-        return "AssetInventory{" + quantityAvailable + "}";
+        if (asset instanceof Good) {
+            return asset + ": " + quantityInUse + " " + ((Good) asset).getUnitOfMeasure();
+        }
+        else {
+            return asset + ": " + quantityInUse;
+        }
     }
 
 }

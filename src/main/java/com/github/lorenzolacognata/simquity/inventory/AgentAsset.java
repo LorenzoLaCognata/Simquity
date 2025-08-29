@@ -1,6 +1,7 @@
 package com.github.lorenzolacognata.simquity.inventory;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
+import com.github.lorenzolacognata.simquity.asset.Good;
 import com.github.lorenzolacognata.simquity.asset.ProductionStatus;
 import com.github.lorenzolacognata.simquity.labor.Employment;
 
@@ -44,7 +45,17 @@ public class AgentAsset {
 
     @Override
     public String toString() {
-        return "AgentAsset{" + asset + ": " + assetInventoryList + "}";
+        if (assetInventoryList.isEmpty()) {
+            if (asset instanceof Good) {
+                return asset + ": 0.0 " + ((Good) asset).getUnitOfMeasure();
+            }
+            else {
+                return asset + ": 0.0";
+            }
+        }
+        else {
+            return assetInventoryList.getFirst().toString();
+        }
     }
 
 }

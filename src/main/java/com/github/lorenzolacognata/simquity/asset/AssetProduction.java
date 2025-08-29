@@ -25,6 +25,10 @@ public class AssetProduction {
         this.laborRequirementList = new ArrayList<>();
     }
 
+    public double getOutputQuantity() {
+        return outputQuantity;
+    }
+
     public List<AssetRequirement> getConsumableAssetRequirementList() {
         return consumableAssetRequirementList;
     }

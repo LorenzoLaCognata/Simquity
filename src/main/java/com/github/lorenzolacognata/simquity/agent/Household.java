@@ -12,7 +12,12 @@ public class Household extends Consumer {
 
     @Override
     public String toString() {
-        return "Household{" + personList + "}";
+        if (personList.isEmpty()) {
+            return this.getClass().getSimpleName() ;
+        }
+        else {
+            return this.getClass().getSimpleName() + " - " + personList.getFirst();
+        }
     }
 
 }

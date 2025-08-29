@@ -12,7 +12,7 @@ public class Person extends Consumer {
 
     @Override
     public String toString() {
-        return "Person{'" + firstName + " " + lastName + "'}";
+        return firstName + " " + lastName;
     }
 
 }

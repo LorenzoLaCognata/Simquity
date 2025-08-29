@@ -22,7 +22,7 @@ public class Organization extends Agent {
 
     @Override
     public String toString() {
-        return "Organization{'" + name + "'}";
+        return this.getClass().getSimpleName() + " - " + name;
     }
 
     public void addEmployment(Employment employment) {

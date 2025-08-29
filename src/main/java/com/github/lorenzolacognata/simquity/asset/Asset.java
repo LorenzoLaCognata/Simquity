@@ -1,7 +1,5 @@
 package com.github.lorenzolacognata.simquity.asset;
 
-import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +35,6 @@ public abstract class Asset {
 
     @Override
     public String toString() {
-        return "Asset{'" + name + "'}";
+        return this.getClass().getSimpleName() + " - " + name;
     }
 }

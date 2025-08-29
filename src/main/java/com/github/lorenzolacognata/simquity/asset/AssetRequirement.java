@@ -22,7 +22,12 @@ public class AssetRequirement {
 
     @Override
     public String toString() {
-        return "AssetRequirement{" + asset + ": " + initialQuantity + "}";
+        if (asset instanceof Good) {
+            return asset + ": " + initialQuantity + " " + ((Good) asset).getUnitOfMeasure();
+        }
+        else {
+            return asset + ": " + initialQuantity;
+        }
     }
 
 }

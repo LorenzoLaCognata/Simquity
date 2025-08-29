@@ -9,4 +9,13 @@ public class Good extends Asset {
         this.unitOfMeasure = unitOfMeasure;
     }
 
+    public UnitOfMeasure getUnitOfMeasure() {
+        return unitOfMeasure;
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + " - " + getName();
+    }
+
 }

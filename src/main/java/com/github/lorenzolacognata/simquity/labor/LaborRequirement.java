@@ -18,6 +18,6 @@ public class LaborRequirement {
 
     @Override
     public String toString() {
-        return "LaborRequirement{" + job + " : " + hours + "'}";
+        return job + " : " + hours + " h";
     }
 }
