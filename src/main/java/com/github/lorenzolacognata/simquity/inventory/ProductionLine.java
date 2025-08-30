@@ -2,10 +2,9 @@ package com.github.lorenzolacognata.simquity.inventory;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
 import com.github.lorenzolacognata.simquity.asset.AssetProduction;
-import com.github.lorenzolacognata.simquity.asset.AssetRequirement;
 import com.github.lorenzolacognata.simquity.asset.ProductionStatus;
 import com.github.lorenzolacognata.simquity.labor.Employment;
-import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
+import com.github.lorenzolacognata.simquity.labor.Job;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,16 +31,54 @@ public class ProductionLine {
         this.employmentList = new ArrayList<>();
     }
 
+    public double getOutputQuantity() {
+        return outputQuantity;
+    }
+
+    public void setOutputQuantity(double outputQuantity) {
+        this.outputQuantity = outputQuantity;
+    }
+
+    public AssetProduction getAssetProduction() {
+        return assetProduction;
+    }
+
+    public ProductionStatus getProductionStatus() {
+        return productionStatus;
+    }
+
+    public void setProductionStatus(ProductionStatus productionStatus) {
+        this.productionStatus = productionStatus;
+    }
+
     public List<AssetInventory> getConsumableAssetInventoryList() {
         return consumableAssetInventoryList;
+    }
+
+    public List<AssetInventory> getConsumableAssetInventoryList(Asset asset) {
+        return consumableAssetInventoryList.stream()
+                .filter(a -> a.getAsset().equals(asset))
+                .toList();
     }
 
     public List<AssetInventory> getDurableAssetInventoryList() {
         return durableAssetInventoryList;
     }
 
+    public List<AssetInventory> getDurableAssetInventoryList(Asset asset) {
+        return durableAssetInventoryList.stream()
+                .filter(a -> a.getAsset().equals(asset))
+                .toList();
+    }
+
     public List<Employment> getEmploymentList() {
         return employmentList;
+    }
+
+    public List<Employment> getEmploymentList(Job job) {
+        return employmentList.stream()
+                .filter(a -> a.getJob().equals(job))
+                .toList();
     }
 
     public void addAssetInventory(AssetInventory assetInventory, List<AssetInventory> assetInventoryList) {

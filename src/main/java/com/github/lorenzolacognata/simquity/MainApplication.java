@@ -112,8 +112,96 @@ public class MainApplication extends Application {
         AgentAsset wheatFarmingDollar = new AgentAsset(dollar);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingDollar);
 
+        AssetInventory wheatFarmingDollarInventory = wheatFarmingDollar.getAssetInventoryList().getFirst();
+        wheatFarmingDollarInventory.addQuantityAvailable(100000);
+
         AgentAsset wheatFarmingWheat = new AgentAsset(wheat);
         wheatFarming.addProducedAgentAsset(wheatFarmingWheat);
+
+        // PRODUCTION LINE
+
+        ProductionLine wheatProductionLine = new ProductionLine(wheatProduction, 40);
+        wheatFarmingWheat.addProductionLine(wheatProductionLine);
+
+        AssetInventory wheatFarmingWheatSeedsInventory = wheatFarmingWheatSeeds.getAssetInventoryList().getFirst();
+        wheatProductionLine.addConsumableAssetInventory(wheatFarmingWheatSeedsInventory);
+
+        AssetInventory wheatFarmingFarmingLandInventory = wheatFarmingFarmingLand.getAssetInventoryList().getFirst();
+        wheatProductionLine.addDurableAssetInventory(wheatFarmingFarmingLandInventory);
+
+        AssetInventory wheatFarmingFarmingToolsInventory = wheatFarmingFarmingTools.getAssetInventoryList().getFirst();
+        wheatProductionLine.addDurableAssetInventory(wheatFarmingFarmingToolsInventory);
+
+        AssetInventory wheatFarmingFarmingMachineryInventory = wheatFarmingFarmingMachinery.getAssetInventoryList().getFirst();
+        wheatProductionLine.addDurableAssetInventory(wheatFarmingFarmingMachineryInventory);
+
+        wheatProductionLine.addEmployment(johnDoeWheatFarming);
+
+        // TEMPORARY - MANUAL PURCHASE OF EXTERNAL INPUTS
+
+        wheatFarmingFarmingLandInventory.addQuantityAvailable(1.0);
+        wheatFarmingDollarInventory.addQuantityAvailable(-20000.0);
+
+        wheatFarmingFarmingToolsInventory.addQuantityAvailable(1.0);
+        wheatFarmingDollarInventory.addQuantityAvailable(-800.0);
+
+        wheatFarmingFarmingMachineryInventory.addQuantityAvailable(1.0);
+        wheatFarmingDollarInventory.addQuantityAvailable(-1000.0);
+
+        wheatFarmingWheatSeedsInventory.addQuantityAvailable(170.0 * 10);
+        wheatFarmingDollarInventory.addQuantityAvailable(-0.50 * 170.0 * 10);
+
+        // TEMPORARY - PRODUCTION
+
+        wheatProductionLine.setProductionStatus(ProductionStatus.IN_PROGRESS);
+
+        //AssetProduction wheatProduction = wheatProductionLine.getAssetProduction();
+
+        for (AssetRequirement consumableAssetRequirement : wheatProduction.getConsumableAssetRequirementList()) {
+            Asset asset = consumableAssetRequirement.getAsset();
+            double requiredQuantity = consumableAssetRequirement.getInitialQuantity();
+            List<AssetInventory> consumableAssetInventoryList = wheatProductionLine.getConsumableAssetInventoryList(asset);
+            for (AssetInventory consumableAssetInventory : consumableAssetInventoryList) {
+                if (requiredQuantity > 0) {
+                    double selectedQuantity = Math.min(requiredQuantity, consumableAssetInventory.getQuantityAvailable());
+                    consumableAssetInventory.removeQuantityAvailable(selectedQuantity);
+                    requiredQuantity = requiredQuantity - selectedQuantity;
+                }
+            }
+        }
+
+        for (AssetRequirement durableAssetRequirement : wheatProduction.getDurableAssetRequirementList()) {
+            Asset asset = durableAssetRequirement.getAsset();
+            double requiredQuantity = durableAssetRequirement.getInitialQuantity();
+            List<AssetInventory> durableAssetInventoryList = wheatProductionLine.getDurableAssetInventoryList(asset);
+            for (AssetInventory durableAssetInventory : durableAssetInventoryList) {
+                if (requiredQuantity > 0) {
+                    double selectedQuantity = Math.min(requiredQuantity, durableAssetInventory.getQuantityAvailable());
+                    durableAssetInventory.useQuantity(selectedQuantity);
+                    requiredQuantity = requiredQuantity - selectedQuantity;
+                }
+            }
+        }
+
+        for (LaborRequirement laborRequirement : wheatProduction.getLaborRequirementList()) {
+            Job job = laborRequirement.getJob();
+            double requiredFtes = laborRequirement.getFtes();
+            List<Employment> employmentList = wheatProductionLine.getEmploymentList(job);
+            for (Employment employment : employmentList) {
+                if (requiredFtes > 0) {
+                    double selectedFtes = Math.min(requiredFtes, employment.getFtesAvailable());
+                    employment.useFtes(selectedFtes);
+                    requiredFtes = requiredFtes - selectedFtes;
+                }
+            }
+        }
+
+        wheatProductionLine.setOutputQuantity(wheatProduction.getOutputQuantity());
+
+        AssetInventory wheatFarmingWheatInventory = wheatFarmingWheat.getAssetInventoryList().getFirst();
+        wheatFarmingWheatInventory.addQuantityAvailable(wheatProductionLine.getOutputQuantity());
+
+        wheatProductionLine.setProductionStatus(ProductionStatus.COMPLETE);
 
         // SUMMARY
 
@@ -151,93 +239,108 @@ public class MainApplication extends Application {
             }
         }
 
-
-
-
-
-        //
-        System.out.println("----------");
-
         System.out.println("\nAGENTS");
         for (Agent agent : agents) {
-            System.out.println(agent);
+            System.out.println("\t" + agent);
             if (agent instanceof Organization) {
                 List<Employment> employments = ((Organization) agent).getEmploymentList();
                 if (!employments.isEmpty()) {
-                    System.out.println("\tEmployments:");
+                    System.out.println("\t\tEmployments:");
                     for (Employment employment : employments) {
-                        System.out.println("\t\t" + employment);
+                        System.out.println("\t\t\t" + employment);
                     }
                 }
                 if (!agent.getProducedAgentAssetList().isEmpty()) {
-                    System.out.println("\tProduced Assets:");
+                    System.out.println("\t\tProduced Assets:");
                     for (AgentAsset producedAgentAsset : agent.getProducedAgentAssetList()) {
-                        System.out.println("\t\t" + producedAgentAsset);
+                        System.out.println("\t\t\t" + producedAgentAsset);
+
+                        List<AssetInventory> assetInventoryList = producedAgentAsset.getAssetInventoryList();
+                        if (!assetInventoryList.isEmpty()) {
+                            for (AssetInventory assetInventory : assetInventoryList) {
+                                System.out.println("\t\t\t\tAvailable: " + assetInventory.getQuantityAvailable());
+                            }
+                        }
+
+                        if (!producedAgentAsset.getProductionLineList().isEmpty()) {
+                            System.out.println("\t\t\t\tProduction Line:");
+                            for (ProductionLine assetProductionLine : producedAgentAsset.getProductionLineList()) {
+                                System.out.println("\t\t\t\t\tStatus: " + assetProductionLine.getProductionStatus());
+                                AssetProduction assetProduction = assetProductionLine.getAssetProduction();
+
+                                if (!assetProduction.getConsumableAssetRequirementList().isEmpty()) {
+                                    System.out.println("\t\t\t\t\tConsumable Asset:");
+                                    for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
+                                        Asset asset = consumableAssetRequirement.getAsset();
+                                        System.out.println("\t\t\t\t\t\t" + asset);
+                                        System.out.println("\t\t\t\t\t\t\tRequired: " + consumableAssetRequirement.getInitialQuantity());
+                                        List<AssetInventory> consumableAssetInventoryList = assetProductionLine.getConsumableAssetInventoryList(asset);
+                                        if (!consumableAssetInventoryList.isEmpty()) {
+                                            for (AssetInventory consumableAssetInventory : consumableAssetInventoryList) {
+                                                System.out.println("\t\t\t\t\t\t\tAvailable: " + consumableAssetInventory.getQuantityAvailable());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (!assetProduction.getDurableAssetRequirementList().isEmpty()) {
+                                    System.out.println("\t\t\t\t\tDurable Asset:");
+                                    for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
+                                        Asset asset = durableAssetRequirement.getAsset();
+                                        System.out.println("\t\t\t\t\t\t" + asset);
+                                        System.out.println("\t\t\t\t\t\t\tRequired: " + durableAssetRequirement.getInitialQuantity());
+                                        List<AssetInventory> durableAssetInventoryList = assetProductionLine.getDurableAssetInventoryList(asset);
+                                        if (!durableAssetInventoryList.isEmpty()) {
+                                            for (AssetInventory durableAssetInventory : durableAssetInventoryList) {
+                                                System.out.println("\t\t\t\t\t\t\tAvailable: " + durableAssetInventory.getQuantityAvailable());
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (!assetProduction.getLaborRequirementList().isEmpty()) {
+                                    System.out.println("\t\t\t\t\tLabor:");
+                                    for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
+                                        Job job = laborRequirement.getJob();
+                                        System.out.println("\t\t\t\t\t\t" + job);
+                                        System.out.println("\t\t\t\t\t\t\tRequired: " + laborRequirement.getFtes());
+                                        List<Employment> employmentList = assetProductionLine.getEmploymentList(job);
+                                        if (!employmentList.isEmpty()) {
+                                            for (Employment employment : employmentList) {
+                                                System.out.println("\t\t\t\t\t\t\tAvailable: " + employment.getFtesAvailable());
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
                     }
                 }
+
                 if (!agent.getPurchasedAgentAssetList().isEmpty()) {
-                    System.out.println("\tPurchase Assets:");
+                    System.out.println("\t\tPurchased Assets:");
                     for (AgentAsset purchasedAgentAsset : agent.getPurchasedAgentAssetList()) {
-                        System.out.println("\t\t" + purchasedAgentAsset);
+                        System.out.println("\t\t\t" + purchasedAgentAsset);
+
+                        List<AssetInventory> assetInventoryList = purchasedAgentAsset.getAssetInventoryList();
+                        if (!assetInventoryList.isEmpty()) {
+                            for (AssetInventory assetInventory : assetInventoryList) {
+                                System.out.println("\t\t\t\tAvailable: " + assetInventory.getQuantityAvailable());
+                            }
+                        }
+
                     }
                 }
             }
         }
 
-
-        ///////
-
-
-        System.out.println("\nASSET PRODUCTION:");
-        for (Asset asset : assets) {
-            System.out.println(asset);
-            for (AssetProduction assetProduction : asset.getAssetProductionList()) {
-                System.out.println(assetProduction);
-                for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
-                    System.out.println(consumableAssetRequirement);
-                }
-                for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
-                    System.out.println(durableAssetRequirement);
-                }
-                for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
-                    System.out.println(laborRequirement);
-                }
-            }
-        }
-
-
-
-        ProductionLine wheatProductionLine = new ProductionLine(wheatProduction, 40);
-        wheatFarmingWheat.addProductionLine(wheatProductionLine);
-
-        AssetInventory wheatFarmingWheatSeedsInventory = wheatFarmingWheatSeeds.getAssetInventoryList().getFirst();
-        wheatProductionLine.addConsumableAssetInventory(wheatFarmingWheatSeedsInventory);
-
-        AssetInventory wheatFarmingFarmingLandInventory = wheatFarmingFarmingLand.getAssetInventoryList().getFirst();
-        wheatProductionLine.addDurableAssetInventory(wheatFarmingFarmingLandInventory);
-
-        wheatProductionLine.addEmployment(johnDoeWheatFarming);
-
-        System.out.println("\nAGENT ASSET PRODUCTION LINE:");
-        for (Agent agent : agents) {
-            for (AgentAsset agentAsset : agent.getProducedAgentAssetList()) {
-                System.out.println(agentAsset);
-                for (ProductionLine assetProductionLine : agentAsset.getProductionLineList()) {
-                    System.out.println(assetProductionLine);
-                    for (AssetInventory consumableAssetInventory : assetProductionLine.getConsumableAssetInventoryList()) {
-                        System.out.println(consumableAssetInventory.getAsset() + ": " + consumableAssetInventory);
-                    }
-                    for (AssetInventory durableAssetInventory : assetProductionLine.getDurableAssetInventoryList()) {
-                        System.out.println(durableAssetInventory.getAsset() + ": " + durableAssetInventory);
-                    }
-                    for (Employment employment : assetProductionLine.getEmploymentList()) {
-                        System.out.println(employment);
-                    }
-                }
-            }
-        }
-
-
+        // TODO: 2) Simulate production
+        // TODO: 3) Implement Market
+        // TODO: 4) Create supply of external inputs
+        // TODO: 5) Create demand for external inputs and simulate purchase through market
+        // TODO: 6) Create supply of Wheat and create external demand for Wheat
+        // TODO: 7) Simulate market iterations and equilibrium price setting
 
         final Label label = new Label();
         label.setText("Simquity");

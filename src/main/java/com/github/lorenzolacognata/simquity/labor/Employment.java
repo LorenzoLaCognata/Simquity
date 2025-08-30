@@ -26,6 +26,18 @@ public class Employment {
         return job;
     }
 
+    public double getFtesAvailable() {
+        return 1 - ftesInUse;
+    }
+
+    public void useFtes(double ftes) {
+        this.ftesInUse += ftes;
+    }
+
+    public void freeFtes(double ftes) {
+        this.ftesInUse -= ftes;
+    }
+
     @Override
     public String toString() {
         return person + " - " + job;

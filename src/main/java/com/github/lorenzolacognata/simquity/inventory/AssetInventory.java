@@ -23,6 +23,23 @@ public class AssetInventory {
         return asset;
     }
 
+    public double getQuantityAvailable() {
+        return quantityAvailable;
+    }
+
+    public void addQuantityAvailable(double quantity) {
+        this.quantityAvailable += quantity;
+    }
+
+    public void removeQuantityAvailable(double quantity) {
+        this.quantityAvailable -= quantity;
+    }
+
+    public void useQuantity(double quantity) {
+        this.quantityInUse += quantity;
+        this.quantityAvailable -= quantity;
+    }
+
     @Override
     public String toString() {
         if (asset instanceof Good) {

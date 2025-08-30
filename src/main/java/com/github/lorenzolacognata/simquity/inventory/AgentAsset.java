@@ -45,17 +45,7 @@ public class AgentAsset {
 
     @Override
     public String toString() {
-        if (assetInventoryList.isEmpty()) {
-            if (asset instanceof Good) {
-                return asset + ": 0.0 " + ((Good) asset).getUnitOfMeasure();
-            }
-            else {
-                return asset + ": 0.0";
-            }
-        }
-        else {
-            return assetInventoryList.getFirst().toString();
-        }
+        return asset.toString();
     }
 
 }

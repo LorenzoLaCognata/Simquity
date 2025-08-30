@@ -18,7 +18,9 @@ public class AssetRequirement {
         return asset;
     }
 
-
+    public double getInitialQuantity() {
+        return initialQuantity;
+    }
 
     @Override
     public String toString() {
