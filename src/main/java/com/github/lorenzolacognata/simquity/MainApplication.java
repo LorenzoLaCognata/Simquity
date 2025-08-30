@@ -11,6 +11,9 @@ import com.github.lorenzolacognata.simquity.inventory.ProductionLine;
 import com.github.lorenzolacognata.simquity.labor.Employment;
 import com.github.lorenzolacognata.simquity.labor.Job;
 import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
+import com.github.lorenzolacognata.simquity.market.DemandAgentAsset;
+import com.github.lorenzolacognata.simquity.market.Market;
+import com.github.lorenzolacognata.simquity.market.SupplyAssetInventory;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -56,6 +59,22 @@ public class MainApplication extends Application {
         Asset dollar = new Currency("Dollar");
         assets.add(dollar);
 
+        // MARKET
+
+        final List<Market> markets = new ArrayList<>();
+
+        Market wheatSeedsMarket = new Market(wheatSeeds);
+        markets.add(wheatSeedsMarket);
+
+        Market farmingLandMarket = new Market(farmingLand);
+        markets.add(farmingLandMarket);
+
+        Market farmingToolsMarket = new Market(farmingTools);
+        markets.add(farmingToolsMarket);
+
+        Market farmingMachineryMarket = new Market(farmingMachinery);
+        markets.add(farmingMachineryMarket);
+
         // ASSET PRODUCTION
 
         AssetProduction wheatProduction = new AssetProduction(38, 43, 16, 5.0);
@@ -90,33 +109,90 @@ public class MainApplication extends Application {
         Organization wheatFarming = new Organization("Wheat Farming");
         agents.add(wheatFarming);
 
+        Organization externalSupplier = new Organization("External Supplier");
+        agents.add(externalSupplier);
+
         // EMPLOYMENT
 
         Employment johnDoeWheatFarming = new Employment(johnDoe, farmer, 12.0, 12.0);
         wheatFarming.addEmployment(johnDoeWheatFarming);
 
-        // AGENT ASSETS
+        // WHEAT FARMING ASSETS
 
-        AgentAsset wheatFarmingWheatSeeds = new AgentAsset(wheatSeeds);
+        AgentAsset wheatFarmingWheatSeeds = new AgentAsset(wheatFarming, wheatSeeds);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingWheatSeeds);
 
-        AgentAsset wheatFarmingFarmingLand = new AgentAsset(farmingLand);
+        AgentAsset wheatFarmingFarmingLand = new AgentAsset(wheatFarming, farmingLand);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingLand);
 
-        AgentAsset wheatFarmingFarmingTools = new AgentAsset(farmingTools);
+        AgentAsset wheatFarmingFarmingTools = new AgentAsset(wheatFarming, farmingTools);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingTools);
 
-        AgentAsset wheatFarmingFarmingMachinery = new AgentAsset(farmingMachinery);
+        AgentAsset wheatFarmingFarmingMachinery = new AgentAsset(wheatFarming, farmingMachinery);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingMachinery);
 
-        AgentAsset wheatFarmingDollar = new AgentAsset(dollar);
+        AgentAsset wheatFarmingDollar = new AgentAsset(wheatFarming, dollar);
         wheatFarming.addPurchasedAgentAsset(wheatFarmingDollar);
 
         AssetInventory wheatFarmingDollarInventory = wheatFarmingDollar.getAssetInventoryList().getFirst();
         wheatFarmingDollarInventory.addQuantityAvailable(100000);
 
-        AgentAsset wheatFarmingWheat = new AgentAsset(wheat);
+        AgentAsset wheatFarmingWheat = new AgentAsset(wheatFarming, wheat);
         wheatFarming.addProducedAgentAsset(wheatFarmingWheat);
+
+        // EXTERNAL SUPPLIER ASSETS
+
+        AgentAsset externalSupplierWheatSeeds = new AgentAsset(externalSupplier, wheatSeeds);
+        externalSupplier.addPurchasedAgentAsset(externalSupplierWheatSeeds);
+
+        AssetInventory externalSupplierWheatSeedsInventory = externalSupplierWheatSeeds.getAssetInventoryList().getFirst();
+        externalSupplierWheatSeedsInventory.addQuantityAvailable(Double.POSITIVE_INFINITY);
+
+        AgentAsset externalSupplierFarmingLand = new AgentAsset(externalSupplier, farmingLand);
+        externalSupplier.addPurchasedAgentAsset(externalSupplierFarmingLand);
+
+        AssetInventory externalSupplierFarmingLandInventory = externalSupplierFarmingLand.getAssetInventoryList().getFirst();
+        externalSupplierFarmingLandInventory.addQuantityAvailable(Double.POSITIVE_INFINITY);
+
+        AgentAsset externalSupplierFarmingTools = new AgentAsset(externalSupplier, farmingTools);
+        externalSupplier.addPurchasedAgentAsset(externalSupplierFarmingTools);
+
+        AssetInventory externalSupplierFarmingToolsInventory = externalSupplierFarmingTools.getAssetInventoryList().getFirst();
+        externalSupplierFarmingToolsInventory.addQuantityAvailable(Double.POSITIVE_INFINITY);
+
+        AgentAsset externalSupplierFarmingMachinery = new AgentAsset(externalSupplier, farmingMachinery);
+        externalSupplier.addPurchasedAgentAsset(externalSupplierFarmingMachinery);
+
+        AssetInventory externalSupplierFarmingMachineryInventory = externalSupplierFarmingMachinery.getAssetInventoryList().getFirst();
+        externalSupplierFarmingMachineryInventory.addQuantityAvailable(Double.POSITIVE_INFINITY);
+
+        // EXTERNAL SUPPLIER SUPPLY
+
+        SupplyAssetInventory externalSupplierWheatSeedsSupply = new SupplyAssetInventory(externalSupplierWheatSeeds, externalSupplierWheatSeedsInventory, Double.POSITIVE_INFINITY, 0.50);
+        wheatSeedsMarket.addSupplyAssetInventory(externalSupplierWheatSeedsSupply);
+
+        SupplyAssetInventory externalSupplierFarmingLandSupply = new SupplyAssetInventory(externalSupplierFarmingLand, externalSupplierFarmingLandInventory, Double.POSITIVE_INFINITY, 20000);
+        farmingLandMarket.addSupplyAssetInventory(externalSupplierFarmingLandSupply);
+
+        SupplyAssetInventory externalSupplierFarmingToolsSupply = new SupplyAssetInventory(externalSupplierFarmingTools, externalSupplierFarmingToolsInventory, Double.POSITIVE_INFINITY, 800);
+        farmingToolsMarket.addSupplyAssetInventory(externalSupplierFarmingToolsSupply);
+
+        SupplyAssetInventory externalSupplierFarmingMachinerySupply = new SupplyAssetInventory(externalSupplierFarmingMachinery, externalSupplierFarmingMachineryInventory, Double.POSITIVE_INFINITY, 1000);
+        farmingMachineryMarket.addSupplyAssetInventory(externalSupplierFarmingMachinerySupply);
+
+        // WHEAT FARMING DEMAND
+
+        DemandAgentAsset wheatFarmingWheatSeedsDemand = new DemandAgentAsset(wheatFarmingWheatSeeds, 1700, 0.50);
+        wheatSeedsMarket.addDemandAgentAsset(wheatFarmingWheatSeedsDemand);
+
+        DemandAgentAsset wheatFarmingFarmingLandDemand = new DemandAgentAsset(wheatFarmingFarmingLand, 1, 20000);
+        farmingLandMarket.addDemandAgentAsset(wheatFarmingFarmingLandDemand);
+
+        DemandAgentAsset wheatFarmingFarmingToolsDemand = new DemandAgentAsset(wheatFarmingFarmingTools, 1, 800);
+        farmingToolsMarket.addDemandAgentAsset(wheatFarmingFarmingToolsDemand);
+
+        DemandAgentAsset wheatFarmingFarmingMachineryDemand = new DemandAgentAsset(wheatFarmingFarmingMachinery, 1, 1000);
+        farmingMachineryMarket.addDemandAgentAsset(wheatFarmingFarmingMachineryDemand);
 
         // PRODUCTION LINE
 
@@ -148,8 +224,8 @@ public class MainApplication extends Application {
         wheatFarmingFarmingMachineryInventory.addQuantityAvailable(1.0);
         wheatFarmingDollarInventory.addQuantityAvailable(-1000.0);
 
-        wheatFarmingWheatSeedsInventory.addQuantityAvailable(170.0 * 10);
-        wheatFarmingDollarInventory.addQuantityAvailable(-0.50 * 170.0 * 10);
+        wheatFarmingWheatSeedsInventory.addQuantityAvailable(1700);
+        wheatFarmingDollarInventory.addQuantityAvailable(-0.50 * 1700);
 
         // TEMPORARY - PRODUCTION
 
@@ -335,10 +411,25 @@ public class MainApplication extends Application {
             }
         }
 
-        // TODO: 2) Simulate production
-        // TODO: 3) Implement Market
-        // TODO: 4) Create supply of external inputs
-        // TODO: 5) Create demand for external inputs and simulate purchase through market
+        System.out.println("\nMARKETS");
+        for (Market market : markets) {
+            System.out.println("\t" + market);
+            if (!market.getSupplyAssetInventoryList().isEmpty()) {
+                System.out.println("\t\tSupply:");
+                for (SupplyAssetInventory supplyAssetInventory : market.getSupplyAssetInventoryList()) {
+                    System.out.println("\t\t\t" + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @" + supplyAssetInventory.getMarginalCost());
+                }
+            }
+            if (!market.getDemandAgentAssetList().isEmpty()) {
+                System.out.println("\t\tDemand:");
+                for (DemandAgentAsset demandAgentAsset : market.getDemandAgentAssetList()) {
+                    System.out.println("\t\t\t" + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @" + demandAgentAsset.getMaximumPrice());
+                }
+            }
+        }
+
+
+        // TODO: 5) Simulate purchase through market
         // TODO: 6) Create supply of Wheat and create external demand for Wheat
         // TODO: 7) Simulate market iterations and equilibrium price setting
 
