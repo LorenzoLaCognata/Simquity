@@ -8,14 +8,14 @@ public class Employment {
     private final Job job;
     private double cost;
     private double salary;
-    private double ftesInUse;
+    private double ftes;
 
     public Employment(Person person, Job job, double cost, double salary) {
         this.person = person;
         this.job = job;
         this.cost = cost;
         this.salary = salary;
-        this.ftesInUse = 0.0;
+        this.ftes = 1.0;
     }
 
     public Person getPerson() {
@@ -26,16 +26,12 @@ public class Employment {
         return job;
     }
 
-    public double getFtesAvailable() {
-        return 1 - ftesInUse;
+    public double getFtes() {
+        return ftes;
     }
 
-    public void useFtes(double ftes) {
-        this.ftesInUse += ftes;
-    }
-
-    public void freeFtes(double ftes) {
-        this.ftesInUse -= ftes;
+    public void addFtes(double ftes) {
+        this.ftes += ftes;
     }
 
     @Override

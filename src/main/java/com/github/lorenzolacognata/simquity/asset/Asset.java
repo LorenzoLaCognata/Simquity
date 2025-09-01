@@ -1,5 +1,7 @@
 package com.github.lorenzolacognata.simquity.asset;
 
+import com.github.lorenzolacognata.simquity.production.AssetProduction;
+
 import java.util.ArrayList;
 import java.util.List;
 

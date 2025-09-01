@@ -2,11 +2,11 @@ package com.github.lorenzolacognata.simquity.inventory;
 
 import com.github.lorenzolacognata.simquity.agent.Agent;
 import com.github.lorenzolacognata.simquity.asset.Asset;
-import com.github.lorenzolacognata.simquity.asset.Good;
 import com.github.lorenzolacognata.simquity.asset.ProductionStatus;
-import com.github.lorenzolacognata.simquity.labor.Employment;
+import com.github.lorenzolacognata.simquity.production.ProductionLine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class AgentAsset {
@@ -22,7 +22,6 @@ public class AgentAsset {
         this.asset = asset;
         this.lastPrice = Double.NaN;
         this.assetInventoryList = new ArrayList<>();
-        assetInventoryList.add(new AssetInventory(asset));
         this.productionLineList = new ArrayList<>();
     }
 
@@ -42,12 +41,34 @@ public class AgentAsset {
         return assetInventoryList;
     }
 
+    public List<AssetInventory> getAssetInventoryList(Asset asset) {
+        return assetInventoryList.stream()
+                .filter(a -> a.getAsset().equals(asset))
+                .toList();
+    }
+
+    public void addAssetInventory(double quantity) {
+        assetInventoryList.add(new AssetInventory(asset, quantity));
+    }
+
     public List<ProductionLine> getProductionLineList() {
         return productionLineList;
     }
 
     public void addProductionLine(ProductionLine productionLine) {
         productionLineList.add(productionLine);
+    }
+
+    public void produceAll() {
+        Iterator<ProductionLine> productionLineIterator = productionLineList.iterator();
+
+        while (productionLineIterator.hasNext()) {
+            ProductionLine productionLine = productionLineIterator.next();
+            productionLine.produce();
+            if (productionLine.getProductionStatus() == ProductionStatus.COMPLETE) {
+                productionLineIterator.remove();
+            }
+        }
     }
 
     @Override

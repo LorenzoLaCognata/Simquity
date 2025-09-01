@@ -1,6 +1,7 @@
 package com.github.lorenzolacognata.simquity.agent;
 
 import com.github.lorenzolacognata.simquity.labor.Employment;
+import com.github.lorenzolacognata.simquity.labor.Job;
 import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
 
 import java.util.ArrayList;
@@ -18,6 +19,12 @@ public class Organization extends Agent {
 
     public List<Employment> getEmploymentList() {
         return employmentList;
+    }
+
+    public List<Employment> getEmploymentList(Job job) {
+        return employmentList.stream()
+                .filter(a -> a.getJob().equals(job))
+                .toList();
     }
 
     @Override

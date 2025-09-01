@@ -7,14 +7,24 @@ public class SupplyAssetInventory {
 
     private final AgentAsset agentAsset;
     private final AssetInventory assetInventory;
-    private double quantity;
-    private double marginalCost;
+    private final double quantity;
+    private final double marginalCost;
+    private double quantityLeft;
 
     public SupplyAssetInventory(AgentAsset agentAsset, AssetInventory assetInventory, double quantity, double marginalCost) {
         this.agentAsset = agentAsset;
         this.assetInventory = assetInventory;
         this.quantity = quantity;
         this.marginalCost = marginalCost;
+        this.quantityLeft = quantity;
+    }
+
+    public AgentAsset getAgentAsset() {
+        return agentAsset;
+    }
+
+    public AssetInventory getAssetInventory() {
+        return assetInventory;
     }
 
     public double getQuantity() {
@@ -23,6 +33,20 @@ public class SupplyAssetInventory {
 
     public double getMarginalCost() {
         return marginalCost;
+    }
+
+    public double getQuantityLeft() {
+        return quantityLeft;
+    }
+
+    public void removeQuantityLeft(double quantity) {
+        System.out.println("Before: " + quantityLeft);
+        this.quantityLeft -= quantity;
+        System.out.println("After: " + quantityLeft);
+    }
+
+    public double getQuantityTraded() {
+        return quantity - quantityLeft;
     }
 
     @Override

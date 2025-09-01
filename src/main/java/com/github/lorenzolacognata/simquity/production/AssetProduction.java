@@ -1,5 +1,6 @@
-package com.github.lorenzolacognata.simquity.asset;
+package com.github.lorenzolacognata.simquity.production;
 
+import com.github.lorenzolacognata.simquity.asset.AssetRequirement;
 import com.github.lorenzolacognata.simquity.labor.LaborRequirement;
 
 import java.util.ArrayList;
@@ -23,6 +24,10 @@ public class AssetProduction {
         this.consumableAssetRequirementList = new ArrayList<>();
         this.durableAssetRequirementList = new ArrayList<>();
         this.laborRequirementList = new ArrayList<>();
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     public double getOutputQuantity() {
