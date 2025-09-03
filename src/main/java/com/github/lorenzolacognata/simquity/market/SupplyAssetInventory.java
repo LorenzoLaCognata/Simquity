@@ -40,9 +40,7 @@ public class SupplyAssetInventory {
     }
 
     public void removeQuantityLeft(double quantity) {
-        System.out.println("Before: " + quantityLeft);
         this.quantityLeft -= quantity;
-        System.out.println("After: " + quantityLeft);
     }
 
     public double getQuantityTraded() {

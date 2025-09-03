@@ -1,9 +1,7 @@
 package com.github.lorenzolacognata.simquity.market;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
-import com.github.lorenzolacognata.simquity.asset.ProductionStatus;
 import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
-import com.github.lorenzolacognata.simquity.production.ProductionLine;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -66,31 +64,9 @@ public class Market {
         demandAgentAssetList.sort((a, b) -> Double.compare(b.getMaximumPrice(), a.getMaximumPrice()));
 
         for (int di = 0; di < demandAgentAssetList.size(); di++) {
-            DemandAgentAsset d = demandAgentAssetList.get(di);
-            System.out.println(d);
-
-            for (int si = 0; si < supplyAssetInventoryList.size(); si++) {
-                if (d.getQuantityLeft() <= 0) {
-                    System.out.println("[TMP]\tNo more quantity needed");
-                    break;
-                }
-
-                SupplyAssetInventory s = supplyAssetInventoryList.get(si);
-                if (s.getQuantityLeft() > 0) {
-                    System.out.println("\t" + s);
-                    if (d.getMaximumPrice() < s.getMarginalCost()) {
-                        System.out.println("[TMP]Stop price | Demand: " + d.getMaximumPrice() + " - Supply: " + s.getMarginalCost());
-                        break;
-                    }
-
-                    double traded = Math.min(d.getQuantityLeft(), s.getQuantityLeft());
-                    d.removeQuantityLeft(traded);
-                    s.removeQuantityLeft(traded);
-                    tradedQuantity += traded;
-                    clearingPrice = s.getMarginalCost();
-                    System.out.println("[TMP]\tTraded | Demand #" + di + " | Supply #" + si + " - Qty: " + traded + " - Price: " + s.getMarginalCost());
-                }
-            }
+            DemandAgentAsset demandAgentAsset = demandAgentAssetList.get(di);
+            System.out.println(demandAgentAsset);
+            matchDemandWithSupply(demandAgentAsset, supplyAssetInventoryList);
         }
 
         /*
@@ -109,18 +85,38 @@ public class Market {
 
         System.out.println("[TMP]Result: " + tradedQuantity + " @" + clearingPrice);
 
-        Iterator<DemandAgentAsset> demandAgentAssetIterator = demandAgentAssetList.iterator();
-        while (demandAgentAssetIterator.hasNext()) {
-            DemandAgentAsset demandAgentAsset = demandAgentAssetIterator.next();
-            if (demandAgentAsset.getQuantityTraded() > 0) {
-                demandAgentAsset.getAgentAsset().addAssetInventory(demandAgentAsset.getQuantityTraded());
-                // TODO: manage multiple currencies with multiple inventories
-                AssetInventory currencyAssetInventory = demandAgentAsset.getAgentAsset().getAgent().getCurrencyAgentAssetList().getFirst().getAssetInventoryList().getFirst();
-                currencyAssetInventory.addQuantity(-clearingPrice * demandAgentAsset.getQuantityTraded());
-                demandAgentAssetIterator.remove();
+        clearDemand(demandAgentAssetList);
+        clearSupply(supplyAssetInventoryList);
+
+    }
+
+    private void matchDemandWithSupply(DemandAgentAsset d, List<SupplyAssetInventory> supplyAssetInventoryList) {
+
+        for (int si = 0; si < supplyAssetInventoryList.size(); si++) {
+            if (d.getQuantityLeft() <= 0) {
+                System.out.println("[TMP]\tNo more quantity needed");
+                break;
+            }
+
+            SupplyAssetInventory s = supplyAssetInventoryList.get(si);
+            if (s.getQuantityLeft() > 0) {
+                System.out.println("\t" + s);
+                if (d.getMaximumPrice() < s.getMarginalCost()) {
+                    System.out.println("[TMP]Stop price | Demand: " + d.getMaximumPrice() + " - Supply: " + s.getMarginalCost());
+                    break;
+                }
+
+                double traded = Math.min(d.getQuantityLeft(), s.getQuantityLeft());
+                d.removeQuantityLeft(traded);
+                s.removeQuantityLeft(traded);
+                tradedQuantity += traded;
+                clearingPrice = s.getMarginalCost();
+                System.out.println("[TMP]\tTraded with  Supply #" + si + " - Qty: " + traded + " - Price: " + s.getMarginalCost());
             }
         }
+    }
 
+    private void clearSupply(List<SupplyAssetInventory> supplyAssetInventoryList) {
         Iterator<SupplyAssetInventory> supplyAssetInventoryIterator = supplyAssetInventoryList.iterator();
         while (supplyAssetInventoryIterator.hasNext()) {
             SupplyAssetInventory supplyAssetInventory = supplyAssetInventoryIterator.next();
@@ -132,7 +128,20 @@ public class Market {
                 supplyAssetInventoryIterator.remove();
             }
         }
+    }
 
+    private void clearDemand(List<DemandAgentAsset> demandAgentAssetList) {
+        Iterator<DemandAgentAsset> demandAgentAssetIterator = demandAgentAssetList.iterator();
+        while (demandAgentAssetIterator.hasNext()) {
+            DemandAgentAsset demandAgentAsset = demandAgentAssetIterator.next();
+            if (demandAgentAsset.getQuantityTraded() > 0) {
+                demandAgentAsset.getAgentAsset().addAssetInventory(demandAgentAsset.getQuantityTraded());
+                // TODO: manage multiple currencies with multiple inventories
+                AssetInventory currencyAssetInventory = demandAgentAsset.getAgentAsset().getAgent().getCurrencyAgentAssetList().getFirst().getAssetInventoryList().getFirst();
+                currencyAssetInventory.addQuantity(-clearingPrice * demandAgentAsset.getQuantityTraded());
+                demandAgentAssetIterator.remove();
+            }
+        }
     }
 
 }
