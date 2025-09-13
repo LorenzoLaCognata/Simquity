@@ -46,19 +46,19 @@ public class MainApplication extends Application {
 
         // ASSETS
 
-        Asset wheatSeeds = new Good("Wheat Seeds", 104, UnitOfMeasure.KILOGRAM);
+        Asset wheatSeeds = new Good("Wheat Seeds", 104, Double.NaN, UnitOfMeasure.KILOGRAM);
         assets.add(wheatSeeds);
 
-        Asset farmingLand = new Good("Farming Land", 5200, UnitOfMeasure.HECTARE);
+        Asset farmingLand = new Good("Farming Land", 5200, Double.NaN, UnitOfMeasure.HECTARE);
         assets.add(farmingLand);
 
-        Asset farmingTools = new Good("Farming Tools", 260, UnitOfMeasure.UNIT);
+        Asset farmingTools = new Good("Farming Tools", 260, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(farmingTools);
 
-        Asset farmingMachinery = new Good("Farming Machinery", 520, UnitOfMeasure.UNIT);
+        Asset farmingMachinery = new Good("Farming Machinery", 520, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(farmingMachinery);
 
-        Asset wheat = new Good("Wheat", 26, UnitOfMeasure.TONNE);
+        Asset wheat = new Good("Wheat", 26, 0.25, UnitOfMeasure.TONNE);
         assets.add(wheat);
 
         Asset dollar = new Currency("Dollar");
@@ -196,13 +196,11 @@ public class MainApplication extends Application {
         DemandAgentAsset wheatFarmingFarmingMachineryDemand = new DemandAgentAsset(wheatFarmingFarmingMachinery, 1, 1000);
         farmingMachineryMarket.addDemandAgentAsset(wheatFarmingFarmingMachineryDemand);
 
-
-
-
-
-
+        // SIMULATING 5 WEEKS/CYCLES
 
         for (int i=0; i<5; i++) {
+
+            System.out.println("\n[WEEK " + i + "]");
 
             // PRODUCTION LINE
 
@@ -217,8 +215,8 @@ public class MainApplication extends Application {
 
             for (AssetInventory wheatFarmingWheatInventory : wheatFarmingWheat.getAssetInventoryList()) {
                 if (wheatFarmingWheatInventory.getQuantity() > 0) {
-                    // TODO: calculate marginal cost
-                    SupplyAssetInventory wheatFarmingWheatSupply = new SupplyAssetInventory(wheatFarmingWheat, wheatFarmingWheatInventory, wheatFarmingWheatInventory.getQuantity(), 171.0);
+                    // TODO: calculate marginal cost (should be around 171)
+                    SupplyAssetInventory wheatFarmingWheatSupply = new SupplyAssetInventory(wheatFarmingWheat, wheatFarmingWheatInventory, wheatFarmingWheatInventory.getQuantity(), wheatFarmingWheatInventory.getMarginalCost());
                     wheatMarket.addSupplyAssetInventory(wheatFarmingWheatSupply);
                 }
             }
@@ -230,6 +228,7 @@ public class MainApplication extends Application {
 
             // MARKET CLEARING
 
+            System.out.println("\nMARKETS");
             for (Market market : markets) {
                 market.clearMarketWithBackstop();
             }

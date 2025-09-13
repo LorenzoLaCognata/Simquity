@@ -9,11 +9,13 @@ public abstract class Asset {
 
     private final String name;
     private final double lifespan;
+    private final double targetGrossMargin;
     private final List<AssetProduction> assetProductionList;
 
-    public Asset(String name, double lifespan) {
+    public Asset(String name, double lifespan, double targetGrossMargin) {
         this.name = name;
         this.lifespan = lifespan;
+        this.targetGrossMargin = targetGrossMargin;
         this.assetProductionList = new ArrayList<>();
     }
 
@@ -23,6 +25,10 @@ public abstract class Asset {
 
     public double getLifespan() {
         return lifespan;
+    }
+
+    public double getTargetGrossMargin() {
+        return targetGrossMargin;
     }
 
     public List<AssetProduction> getAssetProductionList() {

@@ -26,6 +26,14 @@ public class Employment {
         return job;
     }
 
+    public double getCost() {
+        return cost;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
     public double getFtes() {
         return ftes;
     }

@@ -20,6 +20,10 @@ public class LaborRequirement {
         return ftes;
     }
 
+    public double getHours() {
+        return hours;
+    }
+
     @Override
     public String toString() {
         return job + " : " + hours + " h";

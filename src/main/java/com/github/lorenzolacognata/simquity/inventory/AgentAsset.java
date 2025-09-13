@@ -48,7 +48,11 @@ public class AgentAsset {
     }
 
     public void addAssetInventory(double quantity) {
-        assetInventoryList.add(new AssetInventory(asset, quantity));
+        assetInventoryList.add(new AssetInventory(asset, quantity, Double.NaN));
+    }
+
+    public void addAssetInventory(double quantity, double marginalCost) {
+        assetInventoryList.add(new AssetInventory(asset, quantity, marginalCost));
     }
 
     public List<ProductionLine> getProductionLineList() {
@@ -65,7 +69,7 @@ public class AgentAsset {
         while (productionLineIterator.hasNext()) {
             ProductionLine productionLine = productionLineIterator.next();
             productionLine.produce();
-            if (productionLine.getProductionStatus() == ProductionStatus.COMPLETE) {
+            if (productionLine.getProductionStatus() == ProductionStatus.COMPLETE || productionLine.getProductionStatus() == ProductionStatus.ABORTED) {
                 productionLineIterator.remove();
             }
         }

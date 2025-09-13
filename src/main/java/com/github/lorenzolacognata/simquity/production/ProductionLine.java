@@ -115,6 +115,10 @@ public class ProductionLine {
 
     public void produce() {
 
+        System.out.println("[TMP] Produce: " + agentAsset.getAsset());
+
+        double marginalCost = 0.0;
+
         if (productionStatus == ProductionStatus.NOT_STARTED) {
             productionStatus = ProductionStatus.IN_PROGRESS;
         }
@@ -126,6 +130,9 @@ public class ProductionLine {
             .flatMap(List::stream)
             .toList();
 
+        boolean consumableAssetRequirementSatisfied = true;
+        // TODO: stop/undo if required quantity is not available
+
         for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
             double requiredQuantity = consumableAssetRequirement.getInitialQuantity();
             List<AssetInventory> requiredAssetInventoryList = getAssetInventoryLists(agentAssetList, consumableAssetRequirement.getAsset());
@@ -135,24 +142,50 @@ public class ProductionLine {
                     requiredAssetInventory.addQuantity(-selectedQuantity);
                     addConsumableProductionInventory(new ProductionInventory(requiredAssetInventory, selectedQuantity));
                     requiredQuantity = requiredQuantity - selectedQuantity;
+
+                    double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
+                    marginalCost += (double) Math.round(100 * consumableAssetCost / assetProduction.getOutputQuantity()) / 100;
+                    System.out.println("[TMP] Marginal Cost (after Consumable Asset): " + marginalCost);
                 }
             }
+
+            if (requiredQuantity > 0) {
+                consumableAssetRequirementSatisfied = false;
+                break;
+            }
         }
+
+        boolean durableAssetRequirementSatisfied = true;
+        // TODO: stop/undo if required quantity is not available
 
         for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
             double requiredQuantity = durableAssetRequirement.getInitialQuantity();
             List<AssetInventory> requiredAssetInventoryList = getAssetInventoryLists(agentAssetList, durableAssetRequirement.getAsset());
             for (AssetInventory requiredAssetInventory : requiredAssetInventoryList) {
                 if (requiredQuantity > 0) {
+                    // TODO: get durable assets cost
                     double selectedQuantity = Math.min(requiredQuantity, requiredAssetInventory.getQuantity());
                     requiredAssetInventory.addQuantity(-selectedQuantity);
                     addDurableProductionInventory(new ProductionInventory(requiredAssetInventory, selectedQuantity));
                     requiredQuantity = requiredQuantity - selectedQuantity;
+
+                    // TODO: replace assetProduction.getDuration() with 1.0 when not all weeks are simulated together
+                    double durableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity * (assetProduction.getDuration() / requiredAssetInventory.getAsset().getLifespan());
+                    marginalCost += (double) Math.round(100 * durableAssetCost / assetProduction.getOutputQuantity()) / 100;
+                    System.out.println("[TMP] Marginal Cost (after Durable Asset): " + marginalCost);
                 }
+            }
+
+            if (requiredQuantity > 0) {
+                durableAssetRequirementSatisfied = false;
+                break;
             }
         }
 
         Organization organization = (Organization) agentAsset.getAgent();
+
+        boolean laborRequirementSatisfied = true;
+        // TODO: stop/undo if required quantity is not available
 
         for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
             double requiredFtes = laborRequirement.getFtes();
@@ -160,10 +193,20 @@ public class ProductionLine {
             for (Employment requiredEmployment : requiredEmploymentList) {
                 if (requiredFtes > 0) {
                     double selectedFtes = Math.min(requiredFtes, requiredEmployment.getFtes());
+                    double selectedFtesPercentage = selectedFtes / laborRequirement.getFtes();
                     requiredEmployment.addFtes(-selectedFtes);
                     addProductionLabor(new ProductionLabor(requiredEmployment, selectedFtes));
                     requiredFtes = requiredFtes - selectedFtes;
+
+                    double employmentCost = requiredEmployment.getCost() * laborRequirement.getHours() * selectedFtesPercentage;
+                    marginalCost += (double) Math.round(100 * employmentCost / assetProduction.getOutputQuantity()) / 100;
+                    System.out.println("[TMP] Marginal Cost (after Labor): " + marginalCost);
                 }
+            }
+
+            if (requiredFtes > 0) {
+                laborRequirementSatisfied = false;
+                break;
             }
         }
 
@@ -171,20 +214,31 @@ public class ProductionLine {
         //  currentDuration++;
         currentDuration = 99999999;
 
-        if (currentDuration >= assetProduction.getDuration()) {
-            productionStatus = ProductionStatus.COMPLETE;
+        if (consumableAssetRequirementSatisfied && durableAssetRequirementSatisfied && laborRequirementSatisfied) {
 
-            outputQuantity = assetProduction.getOutputQuantity();
-            agentAsset.addAssetInventory(outputQuantity);
+            if (currentDuration >= assetProduction.getDuration()) {
+                productionStatus = ProductionStatus.COMPLETE;
 
-            for (ProductionInventory productionInventory : durableProductionInventoryList) {
-                productionInventory.getAssetInventory().addQuantity(productionInventory.getQuantity());
+                outputQuantity = assetProduction.getOutputQuantity();
+
+                double marginalCostPlusMargin = (double) Math.round(100 * marginalCost / (1 - agentAsset.getAsset().getTargetGrossMargin())) / 100;
+                agentAsset.addAssetInventory(outputQuantity, marginalCostPlusMargin);
+
+                System.out.println("[TMP] Produced: " + outputQuantity);
+
+                for (ProductionInventory productionInventory : durableProductionInventoryList) {
+                    productionInventory.getAssetInventory().addQuantity(productionInventory.getQuantity());
+                }
+
+                for (ProductionLabor productionLabor : productionLaborList) {
+                    productionLabor.getEmployment().addFtes(productionLabor.getFtes());
+                }
+
             }
+        }
 
-            for (ProductionLabor productionLabor : productionLaborList) {
-                productionLabor.getEmployment().addFtes(productionLabor.getFtes());
-            }
-
+        else {
+            productionStatus = ProductionStatus.ABORTED;
         }
 
     }

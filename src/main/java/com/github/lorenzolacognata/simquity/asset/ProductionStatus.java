@@ -4,7 +4,8 @@ public enum ProductionStatus {
 
     NOT_STARTED("Not Started"),
     IN_PROGRESS("In Progress"),
-    COMPLETE("Complete");
+    COMPLETE("Complete"),
+    ABORTED("Aborted");
 
     private final String name;
 

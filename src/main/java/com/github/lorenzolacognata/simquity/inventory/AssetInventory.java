@@ -7,12 +7,14 @@ public class AssetInventory {
 
     private final Asset asset;
     private double quantity;
+    private double marginalCost;
     private double sunkCost;
     private double lifeRemaining;
 
-    public AssetInventory(Asset asset, double quantity) {
+    public AssetInventory(Asset asset, double quantity, double marginalCost) {
         this.asset = asset;
         this.quantity = quantity;
+        this.marginalCost = marginalCost;
         this.sunkCost = 0.0;
         this.lifeRemaining = asset.getLifespan();
     }
@@ -27,6 +29,18 @@ public class AssetInventory {
 
     public void addQuantity(double quantity) {
         this.quantity += quantity;
+    }
+
+    public double getMarginalCost() {
+        return marginalCost;
+    }
+
+    public void setMarginalCost(double marginalCost) {
+        this.marginalCost = marginalCost;
+    }
+
+    public double getLifeRemaining() {
+        return lifeRemaining;
     }
 
     @Override
