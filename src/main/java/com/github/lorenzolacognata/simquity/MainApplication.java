@@ -196,9 +196,9 @@ public class MainApplication extends Application {
         DemandAgentAsset wheatFarmingFarmingMachineryDemand = new DemandAgentAsset(wheatFarmingFarmingMachinery, 1, 1000);
         farmingMachineryMarket.addDemandAgentAsset(wheatFarmingFarmingMachineryDemand);
 
-        // SIMULATING 5 WEEKS/CYCLES
+        // SIMULATING 15 WEEKS/CYCLES
 
-        for (int i=0; i<5; i++) {
+        for (int i=0; i<15; i++) {
 
             System.out.println("\n[WEEK " + i + "]");
 
@@ -209,6 +209,7 @@ public class MainApplication extends Application {
 
             // PRODUCTION
 
+            System.out.println("\nPRODUCTION");
             wheatFarmingWheat.produceAll();
 
             // WHEAT FARMING SUPPLY
