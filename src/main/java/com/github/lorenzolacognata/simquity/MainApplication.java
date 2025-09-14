@@ -38,8 +38,9 @@ public class MainApplication extends Application {
 
     public static void main(String[] args) {
 
-        // JOBS
+        int SIMULATED_WHEAT_FARMING = 3;
 
+        // JOBS
 
         Job farmer = new Job("Farmer");
         jobs.add(farmer);
@@ -103,44 +104,44 @@ public class MainApplication extends Application {
 
         // AGENTS
 
-        Person johnDoe = new Person("John", "Doe");
-        Person janeDoe = new Person("Jane", "Doe");
+        List<Person> personList = new ArrayList<>();
 
-        agents.add(
-            new Household(List.of(johnDoe, janeDoe))
-        );
+        for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+            Person johnDoe = new Person("John", "Doe #" + i);
+            personList.add(johnDoe);
+            agents.add(new Household(List.of(johnDoe)));
+        }
 
-        Organization wheatFarming = new Organization("Wheat Farming");
-        agents.add(wheatFarming);
+        List<Organization> wheatFarmingList = new ArrayList<>();
+
+        for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+            wheatFarmingList.add(new Organization("Wheat Farming #" + i));
+        }
+        agents.addAll(wheatFarmingList);
 
         Organization externalAgent = new Organization("External Agent");
         agents.add(externalAgent);
 
         // EMPLOYMENT
 
-        Employment johnDoeWheatFarming = new Employment(johnDoe, farmer, 12.0, 12.0);
-        wheatFarming.addEmployment(johnDoeWheatFarming);
+        for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+            wheatFarmingList.get(i).addEmployment(new Employment(personList.get(i), farmer, 12.0, 12.0));
+        }
 
         // WHEAT FARMING ASSETS
 
-        AgentAsset wheatFarmingWheatSeeds = new AgentAsset(wheatFarming, wheatSeeds);
-        wheatFarming.addPurchasedAgentAsset(wheatFarmingWheatSeeds);
+        for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+            wheatFarmingList.get(i).addPurchasedAgentAsset(new AgentAsset(wheatFarmingList.get(i), wheatSeeds));
+            wheatFarmingList.get(i).addPurchasedAgentAsset(new AgentAsset(wheatFarmingList.get(i), farmingLand));
+            wheatFarmingList.get(i).addPurchasedAgentAsset(new AgentAsset(wheatFarmingList.get(i), farmingTools));
+            wheatFarmingList.get(i).addPurchasedAgentAsset(new AgentAsset(wheatFarmingList.get(i), farmingMachinery));
 
-        AgentAsset wheatFarmingFarmingLand = new AgentAsset(wheatFarming, farmingLand);
-        wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingLand);
+            wheatFarmingList.get(i).addProducedAgentAsset(new AgentAsset(wheatFarmingList.get(i), wheat));
 
-        AgentAsset wheatFarmingFarmingTools = new AgentAsset(wheatFarming, farmingTools);
-        wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingTools);
-
-        AgentAsset wheatFarmingFarmingMachinery = new AgentAsset(wheatFarming, farmingMachinery);
-        wheatFarming.addPurchasedAgentAsset(wheatFarmingFarmingMachinery);
-
-        AgentAsset wheatFarmingDollar = new AgentAsset(wheatFarming, dollar);
-        wheatFarming.addCurrencyAgentAsset(wheatFarmingDollar);
-        wheatFarmingDollar.addAssetInventory(100000);
-
-        AgentAsset wheatFarmingWheat = new AgentAsset(wheatFarming, wheat);
-        wheatFarming.addProducedAgentAsset(wheatFarmingWheat);
+            AgentAsset wheatFarmingDollar = new AgentAsset(wheatFarmingList.get(i), dollar);
+            wheatFarmingList.get(i).addCurrencyAgentAsset(wheatFarmingDollar);
+            wheatFarmingDollar.addAssetInventory(100000);
+        }
 
         // EXTERNAL AGENT ASSETS
 
@@ -184,48 +185,57 @@ public class MainApplication extends Application {
 
         // WHEAT FARMING DEMAND
 
-        DemandAgentAsset wheatFarmingWheatSeedsDemand = new DemandAgentAsset(wheatFarmingWheatSeeds, 1700, 0.50);
-        wheatSeedsMarket.addDemandAgentAsset(wheatFarmingWheatSeedsDemand);
-
-        DemandAgentAsset wheatFarmingFarmingLandDemand = new DemandAgentAsset(wheatFarmingFarmingLand, 1, 20000);
-        farmingLandMarket.addDemandAgentAsset(wheatFarmingFarmingLandDemand);
-
-        DemandAgentAsset wheatFarmingFarmingToolsDemand = new DemandAgentAsset(wheatFarmingFarmingTools, 1, 800);
-        farmingToolsMarket.addDemandAgentAsset(wheatFarmingFarmingToolsDemand);
-
-        DemandAgentAsset wheatFarmingFarmingMachineryDemand = new DemandAgentAsset(wheatFarmingFarmingMachinery, 1, 1000);
-        farmingMachineryMarket.addDemandAgentAsset(wheatFarmingFarmingMachineryDemand);
+        for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+            wheatSeedsMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(wheatSeeds), 1700, 0.50));
+            farmingLandMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingLand), 1, 20000));
+            farmingToolsMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingTools), 1, 800));
+            farmingMachineryMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingMachinery), 1, 1000));
+        }
 
         // SIMULATING 15 WEEKS/CYCLES
 
-        for (int i=0; i<15; i++) {
+        for (int week=0; week<15; week++) {
 
-            System.out.println("\n[WEEK " + i + "]");
+            System.out.println("\n[WEEK " + week + "]");
 
             // PRODUCTION LINE
 
-            ProductionLine wheatProductionLine = new ProductionLine(wheatFarmingWheat, wheatProduction, 40);
-            wheatFarmingWheat.addProductionLine(wheatProductionLine);
+            for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+                AgentAsset wheatFarmingWheat = wheatFarmingList.get(i).getProducedAgentAsset(wheat);
+                wheatFarmingWheat.addProductionLine(new ProductionLine(wheatFarmingWheat, wheatProduction, 40));
+            }
 
             // PRODUCTION
 
             System.out.println("\nPRODUCTION");
-            wheatFarmingWheat.produceAll();
+
+            for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+
+                System.out.println("\t" + wheatFarmingList.get(i));
+                wheatFarmingList.get(i).getProducedAgentAsset(wheat).produceAll();
+            }
 
             // WHEAT FARMING SUPPLY
 
-            for (AssetInventory wheatFarmingWheatInventory : wheatFarmingWheat.getAssetInventoryList()) {
-                if (wheatFarmingWheatInventory.getQuantity() > 0) {
-                    // TODO: calculate marginal cost (should be around 171)
-                    SupplyAssetInventory wheatFarmingWheatSupply = new SupplyAssetInventory(wheatFarmingWheat, wheatFarmingWheatInventory, wheatFarmingWheatInventory.getQuantity(), wheatFarmingWheatInventory.getMarginalCost());
-                    wheatMarket.addSupplyAssetInventory(wheatFarmingWheatSupply);
+            for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
+
+                AgentAsset wheatFarmingWheat = wheatFarmingList.get(i).getProducedAgentAsset(wheat);
+
+                for (AssetInventory wheatFarmingWheatInventory : wheatFarmingWheat.getAssetInventoryList()) {
+                    if (wheatFarmingWheatInventory.getQuantity() > 0) {
+                        double quantity = wheatFarmingWheatInventory.getQuantity();
+                        double price = wheatFarmingWheatInventory.getMarginalCost();
+                        wheatMarket.addSupplyAssetInventory(new SupplyAssetInventory(wheatFarmingWheat, wheatFarmingWheatInventory, quantity, price));
+                    }
                 }
             }
 
             // EXTERNAL AGENT DEMAND
 
-            DemandAgentAsset externalAgentWheatDemand = new DemandAgentAsset(externalAgentWheat, 1000000, 180.0);
-            wheatMarket.addDemandAgentAsset(externalAgentWheatDemand);
+            if (wheatMarket.getDemandAgentAssetList().isEmpty()) {
+                DemandAgentAsset externalAgentWheatDemand = new DemandAgentAsset(externalAgentWheat, 12, 180.0);
+                wheatMarket.addDemandAgentAsset(externalAgentWheatDemand);
+            }
 
             // MARKET CLEARING
 

@@ -69,7 +69,7 @@ public class Market {
 
             for (int di = 0; di < demandAgentAssetList.size(); di++) {
                 DemandAgentAsset demandAgentAsset = demandAgentAssetList.get(di);
-                System.out.println("\t\tDemand: " + demandAgentAsset);
+                System.out.println("\t\tDemand: " + demandAgentAsset + ": " + demandAgentAsset.getQuantity());
                 matchDemandWithSupply(demandAgentAsset, supplyAssetInventoryList);
             }
 
@@ -101,7 +101,6 @@ public class Market {
 
         for (int si = 0; si < supplyAssetInventoryList.size(); si++) {
             if (d.getQuantityLeft() <= 0) {
-                System.out.println("[TMP]\tNo more quantity needed");
                 break;
             }
 
@@ -109,7 +108,6 @@ public class Market {
             if (supplyAssetInventory.getQuantityLeft() > 0) {
                 System.out.println("\t\t\tSupply: " + supplyAssetInventory);
                 if (d.getMaximumPrice() < supplyAssetInventory.getMarginalCost()) {
-                    System.out.println("[TMP]Stop price | Demand: " + d.getMaximumPrice() + " - Supply: " + supplyAssetInventory.getMarginalCost());
                     break;
                 }
 

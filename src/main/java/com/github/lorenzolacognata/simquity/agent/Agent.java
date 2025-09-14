@@ -1,5 +1,6 @@
 package com.github.lorenzolacognata.simquity.agent;
 
+import com.github.lorenzolacognata.simquity.asset.Asset;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 
 import java.util.ArrayList;
@@ -27,6 +28,27 @@ public abstract class Agent {
 
     public List<AgentAsset> getCurrencyAgentAssetList() {
         return currencyAgentAssetList;
+    }
+
+    public AgentAsset getPurchasedAgentAsset(Asset asset) {
+        return purchasedAgentAssetList.stream()
+            .filter(a -> a.getAsset().equals(asset))
+            .findFirst()
+            .orElse(null);
+    }
+
+    public AgentAsset getProducedAgentAsset(Asset asset) {
+        return producedAgentAssetList.stream()
+                .filter(a -> a.getAsset().equals(asset))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public AgentAsset getCurrencyAgentAsset(Asset asset) {
+        return currencyAgentAssetList.stream()
+                .filter(a -> a.getAsset().equals(asset))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addPurchasedAgentAsset(AgentAsset agentAsset) {

@@ -145,7 +145,7 @@ public class ProductionLine {
 
         if (consumableAssetRequirementSatisfied && durableAssetRequirementSatisfied && laborRequirementSatisfied) {
 
-            System.out.println("\t" + agentAsset.getAsset());
+            System.out.println("\t\t" + agentAsset.getAsset());
 
             marginalCost += useConsumableAsset(agentAssetList, assetProduction.getConsumableAssetRequirementList());
             marginalCost += useDurableAsset(agentAssetList, assetProduction.getDurableAssetRequirementList());
@@ -159,7 +159,7 @@ public class ProductionLine {
                 double marginalCostPlusMargin = (double) Math.round(100 * marginalCost / (1 - agentAsset.getAsset().getTargetGrossMargin())) / 100;
                 agentAsset.addAssetInventory(outputQuantity, marginalCostPlusMargin);
 
-                System.out.println("\t\tProduced: " + outputQuantity + " @ " + marginalCostPlusMargin);
+                System.out.println("\t\t\tProduced: " + outputQuantity + " @ " + marginalCostPlusMargin);
 
                 for (ProductionInventory productionInventory : durableProductionInventoryList) {
                     productionInventory.getAssetInventory().addQuantity(productionInventory.getQuantity());
@@ -247,7 +247,7 @@ public class ProductionLine {
 
                     double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
                     addedMarginalCost += (double) Math.round(100 * consumableAssetCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
+                    System.out.println("\t\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
                 }
             }
         }
@@ -274,7 +274,7 @@ public class ProductionLine {
                     // TODO: replace assetProduction.getDuration() with 1.0 when not all weeks are simulated together
                     double durableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity * (assetProduction.getDuration() / requiredAssetInventory.getAsset().getLifespan());
                     addedMarginalCost += (double) Math.round(100 * durableAssetCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
+                    System.out.println("\t\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
                 }
             }
         }
@@ -305,7 +305,7 @@ public class ProductionLine {
 
                     double employmentCost = requiredEmployment.getCost() * requiredHours * selectedFtesPercentage;
                     addedMarginalCost += (double) Math.round(100 * employmentCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\tMarginal Cost (" + laborRequirement.getJob() + "): " + addedMarginalCost);
+                    System.out.println("\t\t\tMarginal Cost (" + laborRequirement.getJob() + "): " + addedMarginalCost);
                 }
             }
         }
