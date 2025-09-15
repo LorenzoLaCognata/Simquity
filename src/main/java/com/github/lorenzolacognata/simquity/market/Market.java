@@ -62,8 +62,6 @@ public class Market {
 
         if (!demandAgentAssetList.isEmpty()) {
 
-            System.out.println("\t" + this);
-
             supplyAssetInventoryList.sort(Comparator.comparingDouble(a -> a.getMarginalCost()));
             demandAgentAssetList.sort((a, b) -> Double.compare(b.getMaximumPrice(), a.getMaximumPrice()));
 

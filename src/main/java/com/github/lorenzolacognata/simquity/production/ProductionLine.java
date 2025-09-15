@@ -244,8 +244,9 @@ public class ProductionLine {
                     requiredQuantity = requiredQuantity - selectedQuantity;
 
                     double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
-                    addedMarginalCost += (double) Math.round(100 * consumableAssetCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
+                    double marginalCost = (double) Math.round(100 * consumableAssetCost / assetProduction.getOutputQuantity()) / 100;
+                    addedMarginalCost += marginalCost;
+                    System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
                 }
             }
         }
@@ -271,8 +272,9 @@ public class ProductionLine {
 
                     // TODO: replace assetProduction.getDuration() with 1.0 when not all weeks are simulated together
                     double durableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity * (assetProduction.getDuration() / requiredAssetInventory.getAsset().getLifespan());
-                    addedMarginalCost += (double) Math.round(100 * durableAssetCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\t\tMarginal Cost (" + assetRequirement.getAsset() + "): " + addedMarginalCost);
+                    double marginalCost = (double) Math.round(100 * durableAssetCost / assetProduction.getOutputQuantity()) / 100;
+                    addedMarginalCost += marginalCost;
+                    System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
                 }
             }
         }
@@ -302,8 +304,9 @@ public class ProductionLine {
                     double requiredHours = laborRequirement.getHours() * (1 + randomLaborHoursVariance);
 
                     double employmentCost = requiredEmployment.getCost() * requiredHours * selectedFtesPercentage;
-                    addedMarginalCost += (double) Math.round(100 * employmentCost / assetProduction.getOutputQuantity()) / 100;
-                    System.out.println("\t\t\tMarginal Cost (" + laborRequirement.getJob() + "): " + addedMarginalCost);
+                    double marginalCost = (double) Math.round(100 * employmentCost / assetProduction.getOutputQuantity()) / 100;
+                    addedMarginalCost += marginalCost;
+                    System.out.println("\t\t\tMarginal Cost (" + selectedFtes + " of " + laborRequirement.getJob() + "): " + marginalCost);
                 }
             }
         }
