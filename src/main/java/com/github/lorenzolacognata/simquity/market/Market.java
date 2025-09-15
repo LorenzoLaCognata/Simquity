@@ -130,8 +130,8 @@ public class Market {
                 // TODO: manage multiple currencies with multiple inventories
                 AssetInventory currencyAssetInventory = supplyAssetInventory.getAgentAsset().getAgent().getCurrencyAgentAssetList().getFirst().getAssetInventoryList().getFirst();
                 currencyAssetInventory.addQuantity(clearingPrice * supplyAssetInventory.getQuantityTraded());
-                supplyAssetInventoryIterator.remove();
             }
+            supplyAssetInventoryIterator.remove();
         }
     }
 
@@ -144,8 +144,8 @@ public class Market {
                 // TODO: manage multiple currencies with multiple inventories
                 AssetInventory currencyAssetInventory = demandAgentAsset.getAgentAsset().getAgent().getCurrencyAgentAssetList().getFirst().getAssetInventoryList().getFirst();
                 currencyAssetInventory.addQuantity(-clearingPrice * demandAgentAsset.getQuantityTraded());
-                demandAgentAssetIterator.remove();
             }
+            demandAgentAssetIterator.remove();
         }
     }
 

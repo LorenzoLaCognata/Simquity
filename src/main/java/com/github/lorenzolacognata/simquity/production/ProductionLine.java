@@ -137,8 +137,6 @@ public class ProductionLine {
             .flatMap(List::stream)
             .toList();
 
-        // TODO: stop/undo if required quantity is not available
-
         boolean consumableAssetRequirementSatisfied = checkAssetRequirements(agentAssetList, assetProduction.getConsumableAssetRequirementList());
         boolean durableAssetRequirementSatisfied = checkAssetRequirements(agentAssetList, assetProduction.getDurableAssetRequirementList());;
         boolean laborRequirementSatisfied = checkLaborRequirements(agentAssetList, assetProduction.getLaborRequirementList());

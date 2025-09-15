@@ -194,7 +194,7 @@ public class MainApplication extends Application {
 
         // SIMULATING 15 WEEKS/CYCLES
 
-        for (int week=0; week<15; week++) {
+        for (int week=0; week<16; week++) {
 
             System.out.println("\n[WEEK " + week + "]");
 
@@ -240,13 +240,27 @@ public class MainApplication extends Application {
             // MARKET CLEARING
 
             System.out.println("\nMARKETS");
+
             for (Market market : markets) {
+
+                if (!market.getSupplyAssetInventoryList().isEmpty()) {
+                    System.out.println("\t\tInitial Supply:");
+                    for (SupplyAssetInventory supplyAssetInventory : market.getSupplyAssetInventoryList()) {
+                        System.out.println("\t\t\t" + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @" + supplyAssetInventory.getMarginalCost());
+                    }
+                }
+                if (!market.getDemandAgentAssetList().isEmpty()) {
+                    System.out.println("\t\tInitial Demand:");
+                    for (DemandAgentAsset demandAgentAsset : market.getDemandAgentAssetList()) {
+                        System.out.println("\t\t\t" + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @" + demandAgentAsset.getMaximumPrice());
+                    }
+                }
+
                 market.clearMarketWithBackstop();
+
             }
 
         }
-
-        // TODO: 7) Simulate market iterations and equilibrium price setting
 
         final Label label = new Label();
         label.setText("Simquity");
@@ -404,23 +418,6 @@ public class MainApplication extends Application {
                     }
                 }
 
-            }
-        }
-
-        System.out.println("\nMARKETS");
-        for (Market market : markets) {
-            System.out.println("\t" + market);
-            if (!market.getSupplyAssetInventoryList().isEmpty()) {
-                System.out.println("\t\tSupply:");
-                for (SupplyAssetInventory supplyAssetInventory : market.getSupplyAssetInventoryList()) {
-                    System.out.println("\t\t\t" + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @" + supplyAssetInventory.getMarginalCost());
-                }
-            }
-            if (!market.getDemandAgentAssetList().isEmpty()) {
-                System.out.println("\t\tDemand:");
-                for (DemandAgentAsset demandAgentAsset : market.getDemandAgentAssetList()) {
-                    System.out.println("\t\t\t" + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @" + demandAgentAsset.getMaximumPrice());
-                }
             }
         }
 
