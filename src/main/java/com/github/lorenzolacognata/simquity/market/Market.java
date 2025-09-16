@@ -1,6 +1,7 @@
 package com.github.lorenzolacognata.simquity.market;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
+import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
 
 import java.util.ArrayList;
@@ -85,7 +86,9 @@ public class Market {
             }
             */
 
-            System.out.println("\t\tMarket Clearing: " + tradedQuantity + " @" + clearingPrice);
+            if (tradedQuantity > 0) {
+                System.out.println("\t\tMarket Clearing: " + tradedQuantity + " @" + clearingPrice);
+            }
         }
 
         clearDemand(demandAgentAssetList);
@@ -120,17 +123,24 @@ public class Market {
     }
 
     private void clearSupply(List<SupplyAssetInventory> supplyAssetInventoryList) {
+
         Iterator<SupplyAssetInventory> supplyAssetInventoryIterator = supplyAssetInventoryList.iterator();
+
         while (supplyAssetInventoryIterator.hasNext()) {
+
             SupplyAssetInventory supplyAssetInventory = supplyAssetInventoryIterator.next();
+            AgentAsset agentAsset = supplyAssetInventory.getAgentAsset();
+
             if (supplyAssetInventory.getQuantityTraded() > 0) {
                 supplyAssetInventory.getAssetInventory().addQuantity(-supplyAssetInventory.getQuantityTraded());
                 // TODO: manage multiple currencies with multiple inventories
                 AssetInventory currencyAssetInventory = supplyAssetInventory.getAgentAsset().getAgent().getCurrencyAgentAssetList().getFirst().getAssetInventoryList().getFirst();
                 currencyAssetInventory.addQuantity(clearingPrice * supplyAssetInventory.getQuantityTraded());
             }
+
             supplyAssetInventoryIterator.remove();
         }
+
     }
 
     private void clearDemand(List<DemandAgentAsset> demandAgentAssetList) {

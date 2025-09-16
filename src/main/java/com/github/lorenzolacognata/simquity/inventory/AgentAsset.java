@@ -75,6 +75,16 @@ public class AgentAsset {
         }
     }
 
+    public void cleanAssetInventoryList() {
+        Iterator<AssetInventory> assetInventoryIterator = assetInventoryList.iterator();
+        while (assetInventoryIterator.hasNext()) {
+            AssetInventory assetInventory = assetInventoryIterator.next();
+            if (assetInventory.getQuantity() <= 0) {
+                assetInventoryIterator.remove();
+            }
+        }
+    }
+
     @Override
     public String toString() {
         return asset.toString();

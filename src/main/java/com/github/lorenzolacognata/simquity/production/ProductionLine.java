@@ -154,7 +154,7 @@ public class ProductionLine {
 
                 outputQuantity = assetProduction.getOutputQuantity();
 
-                double marginalCostPlusMargin = (double) Math.round(100 * marginalCost / (1 - agentAsset.getAsset().getTargetGrossMargin())) / 100;
+                double marginalCostPlusMargin = (double) Math.round(10000 * marginalCost / (1 - agentAsset.getAsset().getTargetGrossMargin())) / 10000;
                 agentAsset.addAssetInventory(outputQuantity, marginalCostPlusMargin);
 
                 System.out.println("\t\t\tProduced: " + outputQuantity + " @ " + marginalCostPlusMargin);
@@ -238,15 +238,17 @@ public class ProductionLine {
                     break;
                 }
                 else {
-                    double selectedQuantity = Math.min(requiredQuantity, requiredAssetInventory.getQuantity());
-                    requiredAssetInventory.addQuantity(-selectedQuantity);
-                    addConsumableProductionInventory(new ProductionInventory(requiredAssetInventory, selectedQuantity));
-                    requiredQuantity = requiredQuantity - selectedQuantity;
+                    if (requiredAssetInventory.getQuantity() > 0) {
+                        double selectedQuantity = Math.min(requiredQuantity, requiredAssetInventory.getQuantity());
+                        requiredAssetInventory.addQuantity(-selectedQuantity);
+                        addConsumableProductionInventory(new ProductionInventory(requiredAssetInventory, selectedQuantity));
+                        requiredQuantity = requiredQuantity - selectedQuantity;
 
-                    double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
-                    double marginalCost = (double) Math.round(100 * consumableAssetCost / assetProduction.getOutputQuantity()) / 100;
-                    addedMarginalCost += marginalCost;
-                    System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                        double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
+                        double marginalCost = (double) Math.round(10000 * consumableAssetCost / assetProduction.getOutputQuantity()) / 10000;
+                        addedMarginalCost += marginalCost;
+                        System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                    }
                 }
             }
         }
@@ -272,7 +274,7 @@ public class ProductionLine {
 
                     // TODO: replace assetProduction.getDuration() with 1.0 when not all weeks are simulated together
                     double durableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity * (assetProduction.getDuration() / requiredAssetInventory.getAsset().getLifespan());
-                    double marginalCost = (double) Math.round(100 * durableAssetCost / assetProduction.getOutputQuantity()) / 100;
+                    double marginalCost = (double) Math.round(10000 * durableAssetCost / assetProduction.getOutputQuantity()) / 10000;
                     addedMarginalCost += marginalCost;
                     System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
                 }
@@ -304,7 +306,7 @@ public class ProductionLine {
                     double requiredHours = laborRequirement.getHours() * (1 + randomLaborHoursVariance);
 
                     double employmentCost = requiredEmployment.getCost() * requiredHours * selectedFtesPercentage;
-                    double marginalCost = (double) Math.round(100 * employmentCost / assetProduction.getOutputQuantity()) / 100;
+                    double marginalCost = (double) Math.round(10000 * employmentCost / assetProduction.getOutputQuantity()) / 10000;
                     addedMarginalCost += marginalCost;
                     System.out.println("\t\t\tMarginal Cost (" + selectedFtes + " of " + laborRequirement.getJob() + "): " + marginalCost);
                 }

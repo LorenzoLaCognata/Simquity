@@ -2,8 +2,11 @@ package com.github.lorenzolacognata.simquity.agent;
 
 import com.github.lorenzolacognata.simquity.asset.Asset;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
+import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
+import com.github.lorenzolacognata.simquity.market.DemandAgentAsset;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public abstract class Agent {
@@ -74,5 +77,20 @@ public abstract class Agent {
             currencyAgentAssetList.add(agentAsset);
         }
     }
+
+    private void cleanAssetInventoryList(List<AgentAsset> agentAssetList) {
+        for (AgentAsset agentAsset : agentAssetList) {
+            agentAsset.cleanAssetInventoryList();
+        }
+    }
+
+    public void cleanPurchasedAssetInventoryList() {
+        cleanAssetInventoryList(purchasedAgentAssetList);
+    }
+
+    public void cleanProducedAssetInventoryList() {
+        cleanAssetInventoryList(producedAgentAssetList);
+    }
+
 
 }
