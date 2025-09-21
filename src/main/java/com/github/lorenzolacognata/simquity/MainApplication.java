@@ -34,7 +34,6 @@ public class MainApplication extends Application {
     static final List<Job> jobs = new ArrayList<>();
     static final List<Asset> assets = new ArrayList<>();
     static final List<Agent> agents = new ArrayList<>();
-    static final List<Market> markets = new ArrayList<>();
 
     public static void main(String[] args) {
 
@@ -43,105 +42,61 @@ public class MainApplication extends Application {
 
         // JOBS
 
-        Job farmer = new Job("Farmer");
-        jobs.add(farmer);
-
-        Job millWorker = new Job("Mill Worker");
-        jobs.add(millWorker);
+        jobs.add(new Job("Farmer"));
+        jobs.add(new Job("Mill Worker"));
 
         // ASSETS
 
-        Asset wheatSeeds = new Good("Wheat Seeds", 104, Double.NaN, UnitOfMeasure.KILOGRAM);
+        Asset wheatSeeds = new Good("Wheat Seeds", 104, 0.50, Double.NaN, UnitOfMeasure.KILOGRAM);
         assets.add(wheatSeeds);
 
-        Asset farmingLand = new Good("Farming Land", 5200, Double.NaN, UnitOfMeasure.HECTARE);
+        Asset farmingLand = new Good("Farming Land", 5200, 20000.0, Double.NaN, UnitOfMeasure.HECTARE);
         assets.add(farmingLand);
 
-        Asset farmingTools = new Good("Farming Tools", 260, Double.NaN, UnitOfMeasure.UNIT);
+        Asset farmingTools = new Good("Farming Tools", 260, 800.0, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(farmingTools);
 
-        Asset farmingMachinery = new Good("Farming Machinery", 520, Double.NaN, UnitOfMeasure.UNIT);
+        Asset farmingMachinery = new Good("Farming Machinery", 520, 1000.0, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(farmingMachinery);
 
-        Asset industrialFlourMill = new Good("Industrial Flour Mill", 520, Double.NaN, UnitOfMeasure.UNIT);
+        Asset industrialFlourMill = new Good("Industrial Flour Mill", 520, 15000.0, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(industrialFlourMill);
 
-        Asset flourBag = new Good("Flour Bag", 5200, Double.NaN, UnitOfMeasure.UNIT);
+        Asset flourBag = new Good("Flour Bag", 5200, 0.35, Double.NaN, UnitOfMeasure.UNIT);
         assets.add(flourBag);
 
-        Asset wheat = new Good("Wheat", 26, 0.25, UnitOfMeasure.TONNE);
+        Asset wheat = new Good("Wheat", 26, 180.0, 0.25, UnitOfMeasure.TONNE);
         assets.add(wheat);
 
-        Asset wheatFlour = new Good("Wheat Flour", 52, 0.40, UnitOfMeasure.KILOGRAM);
+        Asset wheatFlour = new Good("Wheat Flour", 52, 0.50, 0.40, UnitOfMeasure.KILOGRAM);
         assets.add(wheatFlour);
 
         Asset dollar = new Currency("Dollar");
         assets.add(dollar);
 
-        // MARKET
-
-        Market wheatSeedsMarket = new Market(wheatSeeds);
-        markets.add(wheatSeedsMarket);
-
-        Market farmingLandMarket = new Market(farmingLand);
-        markets.add(farmingLandMarket);
-
-        Market farmingToolsMarket = new Market(farmingTools);
-        markets.add(farmingToolsMarket);
-
-        Market farmingMachineryMarket = new Market(farmingMachinery);
-        markets.add(farmingMachineryMarket);
-
-        Market industrialFlourMillMarket = new Market(industrialFlourMill);
-        markets.add(industrialFlourMillMarket);
-
-        Market flourBagMarket = new Market(flourBag);
-        markets.add(flourBagMarket);
-
-        Market wheatMarket = new Market(wheat);
-        markets.add(wheatMarket);
-
-        Market wheatFlourMarket = new Market(wheatFlour);
-        markets.add(wheatFlourMarket);
 
         // ASSET PRODUCTION
 
+        wheat.addAssetProductionList(new AssetProduction(38, 43, 16, 5.0));
+        wheatFlour.addAssetProductionList(new AssetProduction(Integer.MIN_VALUE, Integer.MAX_VALUE, 1, 720.0));
+
+        // ASSET REQUIREMENT
+
             // WHEAT
 
-        AssetProduction wheatProduction = new AssetProduction(38, 43, 16, 5.0);
-        wheat.addAssetProductionList(wheatProduction);
-
-        AssetRequirement wheatWheatSeedsRequirement = new AssetRequirement(wheatSeeds, 170.0, 0.0, 0.0);
-        wheatProduction.addConsumableAssetRequirement(wheatWheatSeedsRequirement);
-
-        AssetRequirement wheatFarmingLandRequirement = new AssetRequirement(farmingLand, 1.0, 0.0, 0.0);
-        wheatProduction.addDurableAssetRequirement(wheatFarmingLandRequirement);
-
-        AssetRequirement wheatFarmingToolsRequirement = new AssetRequirement(farmingTools, 0.2, 0.0, 0.0);
-        wheatProduction.addDurableAssetRequirement(wheatFarmingToolsRequirement);
-
-        AssetRequirement wheatFarmingMachineryRequirement = new AssetRequirement(farmingMachinery, 0.2, 0.0, 0.0);
-        wheatProduction.addDurableAssetRequirement(wheatFarmingMachineryRequirement);
-
-        LaborRequirement wheatFarmerRequirement = new LaborRequirement(farmer, 0.05, 40.0);
-        wheatProduction.addLaborRequirement(wheatFarmerRequirement);
+        wheat.getAssetProductionList().getFirst().addConsumableAssetRequirement(new AssetRequirement(wheatSeeds, 170.0, 0.0, 0.0));
+        wheat.getAssetProductionList().getFirst().addDurableAssetRequirement(new AssetRequirement(farmingLand, 1.0, 0.0, 0.0));
+        wheat.getAssetProductionList().getFirst().addDurableAssetRequirement(new AssetRequirement(farmingTools, 0.2, 0.0, 0.0));
+        wheat.getAssetProductionList().getFirst().addDurableAssetRequirement(new AssetRequirement(farmingMachinery, 0.2, 0.0, 0.0));
+        // TODO: transform Job into JobType Enum, Asset into AssetType Enum etc.
+        wheat.getAssetProductionList().getFirst().addLaborRequirement(new LaborRequirement(jobs.stream().filter(j -> j.getName().equals("Farmer")).findFirst().orElse(null), 0.05, 40.0));
 
             // WHEAT FLOUR
 
-        AssetProduction wheatFlourProduction = new AssetProduction(Integer.MIN_VALUE, Integer.MAX_VALUE, 1, 720.0);
-        wheatFlour.addAssetProductionList(wheatFlourProduction);
-
-        AssetRequirement wheatFlourWheatRequirement = new AssetRequirement(wheat, 1.0, 0.0, 0.0);
-        wheatFlourProduction.addConsumableAssetRequirement(wheatFlourWheatRequirement);
-
-        AssetRequirement wheatFlourFlourBagRequirement = new AssetRequirement(flourBag, 29.0, 0.0, 0.0);
-        wheatFlourProduction.addConsumableAssetRequirement(wheatFlourFlourBagRequirement);
-
-        AssetRequirement wheatFlourIndustrialFlourMillRequirement = new AssetRequirement(industrialFlourMill, 0.10, 0.0, 0.0);
-        wheatFlourProduction.addDurableAssetRequirement(wheatFlourIndustrialFlourMillRequirement);
-
-        LaborRequirement wheatFlourMillWorkerRequirement = new LaborRequirement(millWorker, 0.05, 2.0);
-        wheatFlourProduction.addLaborRequirement(wheatFlourMillWorkerRequirement);
+        wheatFlour.getAssetProductionList().getFirst().addConsumableAssetRequirement(new AssetRequirement(wheat, 1.0, 0.0, 0.0));
+        wheatFlour.getAssetProductionList().getFirst().addConsumableAssetRequirement(new AssetRequirement(flourBag, 29.0, 0.0, 0.0));
+        wheatFlour.getAssetProductionList().getFirst().addDurableAssetRequirement(new AssetRequirement(industrialFlourMill, 0.10, 0.0, 0.0));
+        wheatFlour.getAssetProductionList().getFirst().addLaborRequirement(new LaborRequirement(jobs.stream().filter(j -> j.getName().equals("Mill Worker")).findFirst().orElse(null), 0.05, 2.0));
 
         // AGENTS
 
@@ -190,14 +145,14 @@ public class MainApplication extends Application {
 
         for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
             // TODO: review difference of cost / salary / hired worker
-            wheatFarmingList.get(i).addEmployment(new Employment(wheatFarmingPeopleList.get(i), farmer, 12.0, 12.0));
+            wheatFarmingList.get(i).addEmployment(new Employment(wheatFarmingPeopleList.get(i), jobs.stream().filter(j -> j.getName().equals("Farmer")).findFirst().orElse(null), 12.0, 12.0));
         }
 
             // WHEAT FLOUR
 
         for (int i=0; i<SIMULATED_WHEAT_MILLING; i++) {
             // TODO: review difference of cost / salary / hired worker
-            wheatMillingList.get(i).addEmployment(new Employment(wheatMillingPeopleList.get(i), millWorker, 14.0, 14.0));
+            wheatMillingList.get(i).addEmployment(new Employment(wheatMillingPeopleList.get(i), jobs.stream().filter(j -> j.getName().equals("Mill Worker")).findFirst().orElse(null), 14.0, 14.0));
         }
 
         // AGENT ASSETS
@@ -270,19 +225,19 @@ public class MainApplication extends Application {
         // EXTERNAL AGENT SUPPLY
 
         for (AssetInventory assetInventory : externalAgentFarmingLand.getAssetInventoryList()) {
-            farmingLandMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingLand, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+            farmingLand.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingLand, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
         }
 
         for (AssetInventory assetInventory : externalAgentFarmingTools.getAssetInventoryList()) {
-            farmingToolsMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingTools, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+            farmingTools.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingTools, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
         }
 
         for (AssetInventory assetInventory : externalAgentFarmingMachinery.getAssetInventoryList()) {
-            farmingMachineryMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingMachinery, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+            farmingMachinery.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFarmingMachinery, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
         }
 
         for (AssetInventory assetInventory : externalAgentIndustrialFlourMill.getAssetInventoryList()) {
-            industrialFlourMillMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentIndustrialFlourMill, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+            industrialFlourMill.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentIndustrialFlourMill, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
         }
 
         // DEMAND
@@ -290,15 +245,15 @@ public class MainApplication extends Application {
             // WHEAT
 
         for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
-            farmingLandMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingLand), 1, 20000));
-            farmingToolsMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingTools), 1, 800));
-            farmingMachineryMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingMachinery), 1, 1000));
+            farmingLand.getMarket().addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingLand), 1, 20000));
+            farmingTools.getMarket().addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingTools), 1, 800));
+            farmingMachinery.getMarket().addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(farmingMachinery), 1, 1000));
         }
 
             // WHEAT FLOUR
 
         for (int i=0; i<SIMULATED_WHEAT_MILLING; i++) {
-            industrialFlourMillMarket.addDemandAgentAsset(new DemandAgentAsset(wheatMillingList.get(i).getPurchasedAgentAsset(industrialFlourMill), 1, 15000));
+            industrialFlourMill.getMarket().addDemandAgentAsset(new DemandAgentAsset(wheatMillingList.get(i).getPurchasedAgentAsset(industrialFlourMill), 1, 15000));
         }
 
         // SIMULATING 15 WEEKS/CYCLES
@@ -309,30 +264,19 @@ public class MainApplication extends Application {
 
             // DEMAND
 
-                // WHEAT
-
-            for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
-                wheatSeedsMarket.addDemandAgentAsset(new DemandAgentAsset(wheatFarmingList.get(i).getPurchasedAgentAsset(wheatSeeds), 170, 0.50));
-            }
-
-                // WHEAT FLOUR
-
-            for (int i=0; i<SIMULATED_WHEAT_MILLING; i++) {
-                flourBagMarket.addDemandAgentAsset(new DemandAgentAsset(wheatMillingList.get(i).getPurchasedAgentAsset(flourBag), 29, 0.35));
-                // TODO: review how to create Wheat demand based on Production needs for Wheat Milling
-                wheatMarket.addDemandAgentAsset(new DemandAgentAsset(wheatMillingList.get(i).getPurchasedAgentAsset(wheat), 1, 180));
-            }
+            generateDemand(wheatFarmingList);
+            generateDemand(wheatMillingList);
 
             // SUPPLY
 
                 // EXTERNAL AGENT
 
             for (AssetInventory assetInventory : externalAgentWheatSeeds.getAssetInventoryList()) {
-                wheatSeedsMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentWheatSeeds, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+                wheatSeeds.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentWheatSeeds, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
             }
 
             for (AssetInventory assetInventory : externalAgentFlourBag.getAssetInventoryList()) {
-                flourBagMarket.addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFlourBag, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+                flourBag.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFlourBag, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
             }
 
             // PRODUCTION LINE
@@ -341,14 +285,14 @@ public class MainApplication extends Application {
 
             for (int i=0; i<SIMULATED_WHEAT_FARMING; i++) {
                 AgentAsset wheatFarmingWheat = wheatFarmingList.get(i).getProducedAgentAsset(wheat);
-                wheatFarmingWheat.addProductionLine(new ProductionLine(wheatFarmingWheat, wheatProduction, 40));
+                wheatFarmingWheat.addProductionLine(new ProductionLine(wheatFarmingWheat, wheat.getAssetProductionList().getFirst(), 40));
             }
 
                 // WHEAT FLOUR
 
             for (int i=0; i<SIMULATED_WHEAT_MILLING; i++) {
                 AgentAsset wheatMillingWheatFlour = wheatMillingList.get(i).getProducedAgentAsset(wheatFlour);
-                wheatMillingWheatFlour.addProductionLine(new ProductionLine(wheatMillingWheatFlour, wheatFlourProduction, 1));
+                wheatMillingWheatFlour.addProductionLine(new ProductionLine(wheatMillingWheatFlour, wheatFlour.getAssetProductionList().getFirst(), 1));
             }
 
             // PRODUCTION
@@ -371,23 +315,24 @@ public class MainApplication extends Application {
 
             // SUPPLY
 
-            createSupplyAssetInventory(wheatFarmingList, wheat, wheatMarket);
-            createSupplyAssetInventory(wheatMillingList, wheatFlour, wheatFlourMarket);
+            createSupplyAssetInventory(wheatFarmingList, wheat);
+            createSupplyAssetInventory(wheatMillingList, wheatFlour);
 
             // EXTERNAL AGENT
 
-            if (wheatFlourMarket.getDemandAgentAssetList().isEmpty()) {
+            if (wheatFlour.getMarket().getDemandAgentAssetList().isEmpty()) {
                 DemandAgentAsset externalAgentWheatFlourDemand = new DemandAgentAsset(externalAgentWheatFlour, 7500, 0.60);
-                wheatFlourMarket.addDemandAgentAsset(externalAgentWheatFlourDemand);
+                wheatFlour.getMarket().addDemandAgentAsset(externalAgentWheatFlourDemand);
             }
 
             // MARKET CLEARING
 
             System.out.println("\nMARKETS");
 
-            for (Market market : markets) {
+            for (Asset asset : assets) {
 
-                System.out.println("\t" + market);
+                Market market = asset.getMarket();
+                System.out.println("\t" + asset);
 
                 if (!market.getSupplyAssetInventoryList().isEmpty()) {
                     System.out.println("\t\tInitial Supply:");
@@ -422,7 +367,32 @@ public class MainApplication extends Application {
         launch();
     }
 
-    private static void createSupplyAssetInventory(List<Organization> organizationList, Asset asset, Market market) {
+    private static void generateDemand(List<Organization> organizationList) {
+        for (int i = 0; i< organizationList.size(); i++) {
+
+            for (AgentAsset producedAgentAsset : organizationList.get(i).getProducedAgentAssetList()) {
+                for (AssetProduction assetProduction : producedAgentAsset.getAsset().getAssetProductionList()) {
+                    for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
+
+                        Asset requiredAsset = consumableAssetRequirement.getAsset();
+                        AgentAsset requiredAgentAsset = organizationList.get(i).getPurchasedAgentAsset(requiredAsset);
+                        double inventoryQuantity = organizationList.get(i).getPurchasedAgentAsset(requiredAsset).getInventoryQuantity();
+                        double missingQuantity = Math.max(consumableAssetRequirement.getInitialQuantity() - inventoryQuantity, 0.0);
+
+                        if (missingQuantity > 0) {
+                            double demandPrice = requiredAsset.getReferencePrice();
+                            if (!requiredAsset.getMarket().getClearingPriceList().isEmpty()) {
+                                demandPrice = requiredAsset.getMarket().getClearingPriceList().getLast();
+                            }
+                            requiredAsset.getMarket().addDemandAgentAsset(new DemandAgentAsset(requiredAgentAsset, missingQuantity, demandPrice));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void createSupplyAssetInventory(List<Organization> organizationList, Asset asset) {
 
         for (Organization organization : organizationList) {
             AgentAsset agentAsset = organization.getProducedAgentAsset(asset);
@@ -430,7 +400,7 @@ public class MainApplication extends Application {
                 if (assetInventory.getQuantity() > 0) {
                     double quantity = assetInventory.getQuantity();
                     double price = assetInventory.getMarginalCost();
-                    market.addSupplyAssetInventory(new SupplyAssetInventory(agentAsset, assetInventory, quantity, price));
+                    asset.getMarket().addSupplyAssetInventory(new SupplyAssetInventory(agentAsset, assetInventory, quantity, price));
                 }
             }
         }
@@ -489,14 +459,7 @@ public class MainApplication extends Application {
                 if (!agent.getProducedAgentAssetList().isEmpty()) {
                     System.out.println("\t\tProduced Assets:");
                     for (AgentAsset producedAgentAsset : agent.getProducedAgentAssetList()) {
-                        System.out.println("\t\t\t" + producedAgentAsset);
-
-                        List<AssetInventory> assetInventoryList = producedAgentAsset.getAssetInventoryList();
-                        if (!assetInventoryList.isEmpty()) {
-                            for (AssetInventory assetInventory : assetInventoryList) {
-                                System.out.println("\t\t\t\tAvailable: " + assetInventory.getQuantity());
-                            }
-                        }
+                        System.out.println("\t\t\t" + producedAgentAsset + ": " + producedAgentAsset.getInventoryQuantity());
 
                         if (!producedAgentAsset.getProductionLineList().isEmpty()) {
                             System.out.println("\t\t\t\tProduction Line:");
@@ -557,30 +520,14 @@ public class MainApplication extends Application {
                 if (!agent.getPurchasedAgentAssetList().isEmpty()) {
                     System.out.println("\t\tPurchased Assets:");
                     for (AgentAsset purchasedAgentAsset : agent.getPurchasedAgentAssetList()) {
-                        System.out.println("\t\t\t" + purchasedAgentAsset);
-
-                        List<AssetInventory> assetInventoryList = purchasedAgentAsset.getAssetInventoryList();
-                        if (!assetInventoryList.isEmpty()) {
-                            for (AssetInventory assetInventory : assetInventoryList) {
-                                System.out.println("\t\t\t\tAvailable: " + assetInventory.getQuantity());
-                            }
-                        }
-
+                        System.out.println("\t\t\t" + purchasedAgentAsset + ": " + purchasedAgentAsset.getInventoryQuantity());
                     }
                 }
 
                 if (!agent.getCurrencyAgentAssetList().isEmpty()) {
                     System.out.println("\t\tCurrency Assets:");
                     for (AgentAsset currencyAgentAsset : agent.getCurrencyAgentAssetList()) {
-                        System.out.println("\t\t\t" + currencyAgentAsset);
-
-                        List<AssetInventory> assetInventoryList = currencyAgentAsset.getAssetInventoryList();
-                        if (!assetInventoryList.isEmpty()) {
-                            for (AssetInventory assetInventory : assetInventoryList) {
-                                System.out.println("\t\t\t\tAvailable: " + assetInventory.getQuantity());
-                            }
-                        }
-
+                        System.out.println("\t\t\t" + currencyAgentAsset + ": " + currencyAgentAsset.getInventoryQuantity());
                     }
                 }
 

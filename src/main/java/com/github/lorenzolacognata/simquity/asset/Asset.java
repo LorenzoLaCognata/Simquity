@@ -1,5 +1,6 @@
 package com.github.lorenzolacognata.simquity.asset;
 
+import com.github.lorenzolacognata.simquity.market.Market;
 import com.github.lorenzolacognata.simquity.production.AssetProduction;
 
 import java.util.ArrayList;
@@ -8,13 +9,17 @@ import java.util.List;
 public abstract class Asset {
 
     private final String name;
+    private final Market market;
     private final double lifespan;
+    private final double referencePrice;
     private final double targetGrossMargin;
     private final List<AssetProduction> assetProductionList;
 
-    public Asset(String name, double lifespan, double targetGrossMargin) {
+    public Asset(String name, double lifespan, double referencePrice, double targetGrossMargin) {
         this.name = name;
+        this.market = new Market();
         this.lifespan = lifespan;
+        this.referencePrice = referencePrice;
         this.targetGrossMargin = targetGrossMargin;
         this.assetProductionList = new ArrayList<>();
     }
@@ -23,8 +28,16 @@ public abstract class Asset {
         return name;
     }
 
+    public Market getMarket() {
+        return market;
+    }
+
     public double getLifespan() {
         return lifespan;
+    }
+
+    public double getReferencePrice() {
+        return referencePrice;
     }
 
     public double getTargetGrossMargin() {

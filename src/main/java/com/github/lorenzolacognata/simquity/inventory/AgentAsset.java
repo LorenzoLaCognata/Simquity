@@ -41,18 +41,18 @@ public class AgentAsset {
         return assetInventoryList;
     }
 
-    public List<AssetInventory> getAssetInventoryList(Asset asset) {
-        return assetInventoryList.stream()
-                .filter(a -> a.getAsset().equals(asset))
-                .toList();
-    }
-
     public void addAssetInventory(double quantity) {
         assetInventoryList.add(new AssetInventory(asset, quantity, Double.NaN));
     }
 
     public void addAssetInventory(double quantity, double marginalCost) {
         assetInventoryList.add(new AssetInventory(asset, quantity, marginalCost));
+    }
+
+    public double getInventoryQuantity() {
+        return assetInventoryList.stream()
+            .mapToDouble(AssetInventory::getQuantity)
+            .sum();
     }
 
     public List<ProductionLine> getProductionLineList() {

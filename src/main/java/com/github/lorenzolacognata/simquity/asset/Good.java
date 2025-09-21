@@ -4,8 +4,8 @@ public class Good extends Asset {
 
     private final UnitOfMeasure unitOfMeasure;
 
-    public Good(String name, double lifespan, double targetGrossMargin, UnitOfMeasure unitOfMeasure) {
-        super(name, lifespan, targetGrossMargin);
+    public Good(String name, double lifespan, double referencePrice, double targetGrossMargin, UnitOfMeasure unitOfMeasure) {
+        super(name, lifespan, referencePrice, targetGrossMargin);
         this.unitOfMeasure = unitOfMeasure;
     }
 

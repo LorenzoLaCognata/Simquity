@@ -317,7 +317,8 @@ public class ProductionLine {
 
     private List<AssetInventory> getAssetInventoryLists(List<AgentAsset> agentAssetList, Asset asset) {
         return agentAssetList.stream()
-            .flatMap(a -> a.getAssetInventoryList(asset).stream())
+            .filter(a -> a.getAsset().equals(asset))
+            .flatMap(a -> a.getAssetInventoryList().stream())
             .toList();
     }
 
