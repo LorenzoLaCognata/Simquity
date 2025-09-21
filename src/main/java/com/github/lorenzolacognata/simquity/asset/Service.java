@@ -2,8 +2,8 @@ package com.github.lorenzolacognata.simquity.asset;
 
 public class Service extends Asset {
 
-    public Service(String name) {
-        super(name, Double.POSITIVE_INFINITY, Double.NaN, Double.NaN);
+    public Service(AssetType assetType) {
+        super(assetType, Double.POSITIVE_INFINITY, Double.NaN, Double.NaN);
     }
 
 }

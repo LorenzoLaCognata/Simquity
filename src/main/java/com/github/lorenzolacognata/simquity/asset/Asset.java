@@ -8,15 +8,15 @@ import java.util.List;
 
 public abstract class Asset {
 
-    private final String name;
+    private final AssetType assetType;
     private final Market market;
     private final double lifespan;
     private final double referencePrice;
     private final double targetGrossMargin;
     private final List<AssetProduction> assetProductionList;
 
-    public Asset(String name, double lifespan, double referencePrice, double targetGrossMargin) {
-        this.name = name;
+    public Asset(AssetType assetType, double lifespan, double referencePrice, double targetGrossMargin) {
+        this.assetType = assetType;
         this.market = new Market();
         this.lifespan = lifespan;
         this.referencePrice = referencePrice;
@@ -24,8 +24,8 @@ public abstract class Asset {
         this.assetProductionList = new ArrayList<>();
     }
 
-    public String getName() {
-        return name;
+    public AssetType getAssetType() {
+        return assetType;
     }
 
     public Market getMarket() {
@@ -56,6 +56,6 @@ public abstract class Asset {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + " - " + name;
+        return assetType.toString();
     }
 }

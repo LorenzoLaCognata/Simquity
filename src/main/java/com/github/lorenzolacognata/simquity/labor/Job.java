@@ -2,18 +2,18 @@ package com.github.lorenzolacognata.simquity.labor;
 
 public class Job {
 
-    private final String name;
+    private final JobType jobType;
 
-    public Job(String name) {
-        this.name = name;
+    public Job(JobType jobType) {
+        this.jobType = jobType;
     }
 
-    public String getName() {
-        return name;
+    public JobType getJobType() {
+        return jobType;
     }
 
     @Override
     public String toString() {
-        return name;
+        return jobType.toString();
     }
 }
