@@ -16,6 +16,8 @@ public class Market {
     private final List<Double> clearingPriceList;
     private final List<DemandAgentAsset> demandAgentAssetList;
     private final List<SupplyAssetInventory> supplyAssetInventoryList;
+    private final List<Transaction> transactionList;
+
     // TODO: implement backstop demand
 
     public Market() {
@@ -23,6 +25,7 @@ public class Market {
         this.clearingPriceList = new ArrayList<>();
         this.demandAgentAssetList = new ArrayList<>();
         this.supplyAssetInventoryList = new ArrayList<>();
+        this.transactionList = new ArrayList<>();
     }
 
     public double getTradedQuantity() {
@@ -47,6 +50,10 @@ public class Market {
 
     public void addSupplyAssetInventory(SupplyAssetInventory supplyAssetInventory) {
         supplyAssetInventoryList.add(supplyAssetInventory);
+    }
+
+    public void addTransaction(Transaction transaction) {
+        transactionList.add(transaction);
     }
 
     public void clearMarketWithBackstop() {
