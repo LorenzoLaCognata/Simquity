@@ -9,8 +9,6 @@ import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
 import com.github.lorenzolacognata.simquity.labor.JobType;
 import com.github.lorenzolacognata.simquity.production.AssetProduction;
-import com.github.lorenzolacognata.simquity.production.ProductionInventory;
-import com.github.lorenzolacognata.simquity.production.ProductionLabor;
 import com.github.lorenzolacognata.simquity.production.ProductionLine;
 import com.github.lorenzolacognata.simquity.labor.Employment;
 import com.github.lorenzolacognata.simquity.labor.Job;
@@ -40,6 +38,13 @@ public class MainApplication extends Application {
     static List<Organization> wheatFarmingList;
     static List<Organization> wheatMillingList;
     static Organization externalAgent;
+
+    static public boolean LOG_PRODUCTION = false;
+    static public boolean LOG_MARKET_CLEARING = false;
+    static public boolean LOG_ASSETS = false;
+    static public AssetType LOG_SELECTED_ASSET_TYPE = null;
+    static public int WEEKS = 3;
+    private static Label label;
 
     public static void main(String[] args) {
 
@@ -108,115 +113,126 @@ public class MainApplication extends Application {
                     new DemandAgentAsset(organization.getPurchasedAgentAsset(getAsset(AssetType.INDUSTRIAL_FLOUR_MILL)), 1, getAsset(AssetType.INDUSTRIAL_FLOUR_MILL).getReferencePrice()));
         }
 
-        // SIMULATING 15 WEEKS/CYCLES
 
-        for (int week=0; week<16; week++) {
+        // SIMULATION
 
+
+        for (int week=1; week<=WEEKS; week++) {
             System.out.println("\n[WEEK " + week + "]");
-
-            // DEMAND
-
-            generateDemand(wheatFarmingList);
-            generateDemand(wheatMillingList);
-
-            // SUPPLY
-
-                // EXTERNAL AGENT
-
-            for (AssetInventory assetInventory : externalAgentWheatSeeds.getAssetInventoryList()) {
-                getAsset(AssetType.WHEAT_SEEDS).getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentWheatSeeds, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
-            }
-
-            for (AssetInventory assetInventory : externalAgentFlourBag.getAssetInventoryList()) {
-                getAsset(AssetType.FLOUR_BAG).getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFlourBag, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
-            }
-
-            // PRODUCTION LINE
-
-                // WHEAT
-
-                for (Organization organization : wheatFarmingList) {
-                AgentAsset wheatFarmingWheat = organization.getProducedAgentAsset(getAsset(AssetType.WHEAT));
-                wheatFarmingWheat.addProductionLine(new ProductionLine(wheatFarmingWheat, getAsset(AssetType.WHEAT).getAssetProductionList().getFirst(), 40));
-            }
-
-                // WHEAT FLOUR
-
-            for (Organization organization : wheatMillingList) {
-                AgentAsset wheatMillingWheatFlour = organization.getProducedAgentAsset(getAsset(AssetType.WHEAT_FLOUR));
-                wheatMillingWheatFlour.addProductionLine(new ProductionLine(wheatMillingWheatFlour, getAsset(AssetType.WHEAT_FLOUR).getAssetProductionList().getFirst(), 1));
-            }
-
-            // PRODUCTION
-
-            System.out.println("\nPRODUCTION");
-
-                // WHEAT
-
-            for (Organization organization : wheatFarmingList) {
-                System.out.println("\t" + organization);
-                organization.getProducedAgentAsset(getAsset(AssetType.WHEAT)).produceAll();
-            }
-
-                // WHEAT FLOUR
-
-            for (Organization organization : wheatMillingList) {
-                System.out.println("\t" + organization);
-                organization.getProducedAgentAsset(getAsset(AssetType.WHEAT_FLOUR)).produceAll();
-            }
-
-            // SUPPLY
-
-            createSupplyAssetInventory(wheatFarmingList, getAsset(AssetType.WHEAT));
-            createSupplyAssetInventory(wheatMillingList, getAsset(AssetType.WHEAT_FLOUR));
-
-            // EXTERNAL AGENT
-
-            if (getAsset(AssetType.WHEAT_FLOUR).getMarket().getDemandAgentAssetList().isEmpty()) {
-                DemandAgentAsset externalAgentWheatFlourDemand = new DemandAgentAsset(externalAgentWheatFlour, 7500, 0.60);
-                getAsset(AssetType.WHEAT_FLOUR).getMarket().addDemandAgentAsset(externalAgentWheatFlourDemand);
-            }
-
-            // MARKET CLEARING
-
-            System.out.println("\nMARKETS");
-
-            for (Asset asset : assets) {
-
-                Market market = asset.getMarket();
-                System.out.println("\t" + asset);
-
-                if (!market.getSupplyAssetInventoryList().isEmpty()) {
-                    System.out.println("\t\tInitial Supply:");
-                    for (SupplyAssetInventory supplyAssetInventory : market.getSupplyAssetInventoryList()) {
-                        System.out.println("\t\t\t" + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @" + supplyAssetInventory.getMarginalCost());
-                    }
-                }
-                if (!market.getDemandAgentAssetList().isEmpty()) {
-                    System.out.println("\t\tInitial Demand:");
-                    for (DemandAgentAsset demandAgentAsset : market.getDemandAgentAssetList()) {
-                        System.out.println("\t\t\t" + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @" + demandAgentAsset.getMaximumPrice());
-                    }
-                }
-
-                market.clearMarketWithBackstop();
-
-                for (Agent agent : agents) {
-                    agent.cleanPurchasedAssetInventoryList();
-                    agent.cleanProducedAssetInventoryList();
-                }
-
-            }
-
+            simulateDemand();
+            simulateExternalSupply();
+            simulateExternalDemand();
+            simulateMarketClearing();
+            simulateProduction();
+            logging();
         }
 
         final Label label = new Label();
         label.setText("Simquity");
         root.getChildren().add(label);
 
-        logging();
-
         launch();
+    }
+
+    private static void simulateExternalDemand() {
+        AgentAsset externalAgentWheatFlour = externalAgent.getPurchasedAgentAsset(getAsset(AssetType.WHEAT_FLOUR));
+        if (getAsset(AssetType.WHEAT_FLOUR).getMarket().getDemandAgentAssetList().isEmpty()) {
+            DemandAgentAsset externalAgentWheatFlourDemand = new DemandAgentAsset(externalAgentWheatFlour, 10800, 0.60);
+            getAsset(AssetType.WHEAT_FLOUR).getMarket().addDemandAgentAsset(externalAgentWheatFlourDemand);
+        }
+    }
+
+    private static void simulateExternalSupply() {
+
+        AgentAsset externalAgentWheatSeeds = externalAgent.getPurchasedAgentAsset(getAsset(AssetType.WHEAT_SEEDS));
+        for (AssetInventory assetInventory : externalAgentWheatSeeds.getAssetInventoryList()) {
+            getAsset(AssetType.WHEAT_SEEDS).getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentWheatSeeds, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+        }
+
+        AgentAsset externalAgentFlourBag = externalAgent.getPurchasedAgentAsset(getAsset(AssetType.FLOUR_BAG));
+        for (AssetInventory assetInventory : externalAgentFlourBag.getAssetInventoryList()) {
+            getAsset(AssetType.FLOUR_BAG).getMarket().addSupplyAssetInventory(new SupplyAssetInventory(externalAgentFlourBag, assetInventory, assetInventory.getQuantity(), assetInventory.getMarginalCost()));
+        }
+
+    }
+
+    private static void simulateDemand() {
+        generateDemand(wheatFarmingList);
+        generateDemand(wheatMillingList);
+    }
+
+    private static void simulateMarketClearing() {
+
+        if (LOG_MARKET_CLEARING) {
+            System.out.println("\nMARKETS");
+        }
+
+        for (Asset asset : assets) {
+
+            Market market = asset.getMarket();
+
+            if (LOG_MARKET_CLEARING & (asset.getAssetType() == LOG_SELECTED_ASSET_TYPE || LOG_SELECTED_ASSET_TYPE == null)) {
+                System.out.println("\t" + asset);
+            }
+
+            market.clearMarketWithBackstop();
+
+            for (Agent agent : agents) {
+                agent.cleanPurchasedAssetInventoryList();
+                agent.cleanProducedAssetInventoryList();
+            }
+
+        }
+    }
+
+    private static void simulateProduction() {
+
+        // PRODUCTION LINE
+
+            // WHEAT
+
+        for (Organization organization : wheatFarmingList) {
+            AgentAsset wheatFarmingWheat = organization.getProducedAgentAsset(getAsset(AssetType.WHEAT));
+            wheatFarmingWheat.addProductionLine(new ProductionLine(wheatFarmingWheat, getAsset(AssetType.WHEAT).getAssetProductionList().getFirst(), 40));
+        }
+
+            // WHEAT FLOUR
+
+        for (Organization organization : wheatMillingList) {
+            AgentAsset wheatMillingWheatFlour = organization.getProducedAgentAsset(getAsset(AssetType.WHEAT_FLOUR));
+            wheatMillingWheatFlour.addProductionLine(new ProductionLine(wheatMillingWheatFlour, getAsset(AssetType.WHEAT_FLOUR).getAssetProductionList().getFirst(), 1));
+        }
+
+
+        // PRODUCTION
+
+        if (LOG_PRODUCTION) {
+            System.out.println("\nPRODUCTION");
+        }
+
+            // WHEAT
+
+        for (Organization organization : wheatFarmingList) {
+            if (LOG_PRODUCTION) {
+                System.out.println("\t" + organization);
+            }
+            organization.getProducedAgentAsset(getAsset(AssetType.WHEAT)).produceAll();
+        }
+
+            // WHEAT FLOUR
+
+        for (Organization organization : wheatMillingList) {
+            if (LOG_PRODUCTION) {
+                System.out.println("\t" + organization);
+            }
+            organization.getProducedAgentAsset(getAsset(AssetType.WHEAT_FLOUR)).produceAll();
+        }
+
+        // SUPPLY
+
+        createSupplyAssetInventory(wheatFarmingList, getAsset(AssetType.WHEAT));
+        createSupplyAssetInventory(wheatMillingList, getAsset(AssetType.WHEAT_FLOUR));
+
     }
 
     private static void initData() {
@@ -315,7 +331,7 @@ public class MainApplication extends Application {
 
     private static void initAgents() {
         wheatFarmingList = generateOrganizations(3, JobType.FARMER, 12.0, 12.0);
-        wheatMillingList = generateOrganizations(12, JobType.MILL_WORKER, 14.0, 14.0);
+        wheatMillingList = generateOrganizations(15, JobType.MILL_WORKER, 14.0, 14.0);
 
         externalAgent = new Organization("External Agent");
         agents.add(externalAgent);
@@ -338,6 +354,7 @@ public class MainApplication extends Application {
     private static void generateDemand(List<Organization> organizationList) {
         for (Organization organization : organizationList) {
 
+            // TODO: check current inventory for the produced product, and reduce production if there is already some unsold inventory
             for (AgentAsset producedAgentAsset : organization.getProducedAgentAssetList()) {
                 for (AssetProduction assetProduction : producedAgentAsset.getAsset().getAssetProductionList()) {
                     for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
@@ -350,7 +367,7 @@ public class MainApplication extends Application {
                         if (missingQuantity > 0) {
                             double demandPrice = requiredAsset.getReferencePrice();
                             if (!requiredAsset.getMarket().getClearingPriceList().isEmpty()) {
-                                demandPrice = requiredAsset.getMarket().getClearingPriceList().getLast();
+                                demandPrice = (requiredAsset.getReferencePrice() * 0.5) + (requiredAsset.getMarket().getClearingPriceList().getLast() * 0.5);
                             }
                             requiredAsset.getMarket().addDemandAgentAsset(new DemandAgentAsset(requiredAgentAsset, missingQuantity, demandPrice));
                         }
@@ -379,59 +396,81 @@ public class MainApplication extends Application {
 
         // SUMMARY
 
-        /*
-        System.out.println("ASSETS");
-        for (Asset asset : assets) {
-            System.out.println("\t" + asset);
-            if (!asset.getAssetProductionList().isEmpty()) {
-                System.out.println("\t\tProduction:");
-                for (AssetProduction assetProduction : asset.getAssetProductionList()) {
-                    if (asset instanceof Good) {
-                        System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity() + " " + ((Good) asset).getUnitOfMeasure());
-                    }
-                    else {
-                        System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity());
-                    }
-                    if (!assetProduction.getConsumableAssetRequirementList().isEmpty()) {
-                        System.out.println("\t\t\tConsumable Asset:");
-                        for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
-                            System.out.println("\t\t\t\t" + consumableAssetRequirement);
-                        }
-                    }
-                    if (!assetProduction.getDurableAssetRequirementList().isEmpty()) {
-                        System.out.println("\t\t\tDurable Asset:");
-                        for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
-                            System.out.println("\t\t\t\t" + durableAssetRequirement);
-                        }
-                    }
-                    if (!assetProduction.getLaborRequirementList().isEmpty()) {
-                        System.out.println("\t\t\tLabor:");
-                        for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
-                            System.out.println("\t\t\t\t" + laborRequirement);
+        if (LOG_ASSETS) {
+            System.out.println("ASSETS");
+            for (Asset asset : assets) {
+
+                if ((asset.getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+
+                    System.out.println("\t" + asset);
+                    if (!asset.getAssetProductionList().isEmpty()) {
+                        System.out.println("\t\tProduction:");
+                        for (AssetProduction assetProduction : asset.getAssetProductionList()) {
+                            if (asset instanceof Good) {
+                                System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity() + " " + ((Good) asset).getUnitOfMeasure());
+                            } else {
+                                System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity());
+                            }
+                            if (!assetProduction.getConsumableAssetRequirementList().isEmpty()) {
+                                System.out.println("\t\t\tConsumable Asset:");
+                                for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
+                                    System.out.println("\t\t\t\t" + consumableAssetRequirement);
+                                }
+                            }
+                            if (!assetProduction.getDurableAssetRequirementList().isEmpty()) {
+                                System.out.println("\t\t\tDurable Asset:");
+                                for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
+                                    System.out.println("\t\t\t\t" + durableAssetRequirement);
+                                }
+                            }
+                            if (!assetProduction.getLaborRequirementList().isEmpty()) {
+                                System.out.println("\t\t\tLabor:");
+                                for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
+                                    System.out.println("\t\t\t\t" + laborRequirement);
+                                }
+                            }
                         }
                     }
                 }
             }
         }
 
-        */
-
         System.out.println("\nAGENTS");
-        for (Agent agent : agents) {
-            System.out.println("\t" + agent);
-            if (agent instanceof Organization) {
-                List<Employment> employments = ((Organization) agent).getEmploymentList();
-                if (!employments.isEmpty()) {
-                    System.out.println("\t\tEmployments:");
-                    for (Employment employment : employments) {
-                        System.out.println("\t\t\t" + employment);
-                    }
-                }
-                if (!agent.getProducedAgentAssetList().isEmpty()) {
-                    System.out.println("\t\tProduced Assets:");
-                    for (AgentAsset producedAgentAsset : agent.getProducedAgentAssetList()) {
-                        System.out.println("\t\t\t" + producedAgentAsset + ": " + producedAgentAsset.getInventoryQuantity());
 
+        for (Agent agent : agents) {
+
+            if (agent instanceof Organization) {
+
+                System.out.println("\t" + agent);
+
+                if (!agent.getProducedAgentAssetList().isEmpty()) {
+                    for (AgentAsset producedAgentAsset : agent.getProducedAgentAssetList()) {
+                        if ((producedAgentAsset.getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                            boolean testQuantity = true;
+                            System.out.println("\t\t" + producedAgentAsset + ": " + producedAgentAsset.getInventoryQuantity());
+
+                            if (((Organization) agent).getName().startsWith("Farmer")) {
+                                switch (producedAgentAsset.getAsset().getAssetType()) {
+                                    case WHEAT -> {
+                                        if (producedAgentAsset.getInventoryQuantity() < 5 || producedAgentAsset.getInventoryQuantity() > 6) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            else if (((Organization) agent).getName().startsWith("Mill Worker")) {
+                                switch (producedAgentAsset.getAsset().getAssetType()) {
+                                    case WHEAT_FLOUR -> {
+                                        if (producedAgentAsset.getInventoryQuantity() > 0) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            if (!testQuantity) {
+                                System.out.println("\t\t\tERROR!");
+                            }
+                        }
+
+                        /*
                         if (!producedAgentAsset.getProductionLineList().isEmpty()) {
                             System.out.println("\t\t\t\tProduction Line:");
                             for (ProductionLine assetProductionLine : producedAgentAsset.getProductionLineList()) {
@@ -485,23 +524,76 @@ public class MainApplication extends Application {
 
                             }
                         }
+                        */
                     }
                 }
 
                 if (!agent.getPurchasedAgentAssetList().isEmpty()) {
-                    System.out.println("\t\tPurchased Assets:");
                     for (AgentAsset purchasedAgentAsset : agent.getPurchasedAgentAssetList()) {
-                        System.out.println("\t\t\t" + purchasedAgentAsset + ": " + purchasedAgentAsset.getInventoryQuantity());
+                        if ((purchasedAgentAsset.getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                            boolean testQuantity = true;
+                            System.out.println("\t\t" + purchasedAgentAsset + ": " + purchasedAgentAsset.getInventoryQuantity());
+
+                            if (((Organization) agent).getName().startsWith("Farmer")) {
+                                switch (purchasedAgentAsset.getAsset().getAssetType()) {
+                                    case FARMING_LAND, FARMING_MACHINERY, FARMING_TOOLS -> {
+                                        if (purchasedAgentAsset.getInventoryQuantity() != 1) testQuantity = false;
+                                    }
+                                    case WHEAT_SEEDS -> {
+                                        if (purchasedAgentAsset.getInventoryQuantity() >= 170) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            else if (((Organization) agent).getName().startsWith("Mill Worker")) {
+                                switch (purchasedAgentAsset.getAsset().getAssetType()) {
+                                    case INDUSTRIAL_FLOUR_MILL -> {
+                                        if (purchasedAgentAsset.getInventoryQuantity() != 1) testQuantity = false;
+                                    }
+                                    case FLOUR_BAG -> {
+                                        if (purchasedAgentAsset.getInventoryQuantity() >= 29) testQuantity = false;
+                                    }
+                                    case WHEAT -> {
+                                        if (purchasedAgentAsset.getInventoryQuantity() >= 1) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            if (!testQuantity) {
+                                System.out.println("\t\t\tERROR!");
+                            }
+                        }
                     }
                 }
 
                 if (!agent.getCurrencyAgentAssetList().isEmpty()) {
-                    System.out.println("\t\tCurrency Assets:");
                     for (AgentAsset currencyAgentAsset : agent.getCurrencyAgentAssetList()) {
-                        System.out.println("\t\t\t" + currencyAgentAsset + ": " + currencyAgentAsset.getInventoryQuantity());
+                        if ((currencyAgentAsset.getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                            boolean testQuantity = true;
+                            System.out.println("\t\t" + currencyAgentAsset + ": " + currencyAgentAsset.getInventoryQuantity());
+
+                            if (((Organization) agent).getName().startsWith("Farmer")) {
+                                switch (currencyAgentAsset.getAsset().getAssetType()) {
+                                    case DOLLAR -> {
+                                        if (currencyAgentAsset.getInventoryQuantity() == 0) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            else if (((Organization) agent).getName().startsWith("Mill Worker")) {
+                                switch (currencyAgentAsset.getAsset().getAssetType()) {
+                                    case DOLLAR -> {
+                                        if (currencyAgentAsset.getInventoryQuantity() == 0) testQuantity = false;
+                                    }
+                                    default -> { }
+                                }
+                            }
+                            if (!testQuantity) {
+                                System.out.println("\t\t\tERROR!");
+                            }
+                        }
                     }
                 }
-
             }
         }
 

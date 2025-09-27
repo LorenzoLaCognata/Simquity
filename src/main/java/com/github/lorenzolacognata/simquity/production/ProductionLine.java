@@ -1,5 +1,6 @@
 package com.github.lorenzolacognata.simquity.production;
 
+import com.github.lorenzolacognata.simquity.MainApplication;
 import com.github.lorenzolacognata.simquity.agent.Organization;
 import com.github.lorenzolacognata.simquity.asset.Asset;
 import com.github.lorenzolacognata.simquity.asset.AssetRequirement;
@@ -143,7 +144,9 @@ public class ProductionLine {
 
         if (consumableAssetRequirementSatisfied && durableAssetRequirementSatisfied && laborRequirementSatisfied) {
 
-            System.out.println("\t\t" + agentAsset.getAsset());
+            if (MainApplication.LOG_PRODUCTION) {
+                System.out.println("\t\t" + agentAsset.getAsset());
+            }
 
             marginalCost += useConsumableAsset(agentAssetList, assetProduction.getConsumableAssetRequirementList());
             marginalCost += useDurableAsset(agentAssetList, assetProduction.getDurableAssetRequirementList());
@@ -157,7 +160,9 @@ public class ProductionLine {
                 double marginalCostPlusMargin = (double) Math.round(10000 * marginalCost / (1 - agentAsset.getAsset().getTargetGrossMargin())) / 10000;
                 agentAsset.addAssetInventory(outputQuantity, marginalCostPlusMargin);
 
-                System.out.println("\t\t\tProduced: " + outputQuantity + " @ " + marginalCostPlusMargin);
+                if (MainApplication.LOG_PRODUCTION) {
+                    System.out.println("\t\t\tProduced: " + outputQuantity + " @ " + marginalCostPlusMargin);
+                }
 
                 for (ProductionInventory productionInventory : durableProductionInventoryList) {
                     productionInventory.getAssetInventory().addQuantity(productionInventory.getQuantity());
@@ -247,7 +252,9 @@ public class ProductionLine {
                         double consumableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity;
                         double marginalCost = (double) Math.round(10000 * consumableAssetCost / assetProduction.getOutputQuantity()) / 10000;
                         addedMarginalCost += marginalCost;
-                        System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                        if (MainApplication.LOG_PRODUCTION) {
+                            System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                        }
                     }
                 }
             }
@@ -276,7 +283,9 @@ public class ProductionLine {
                     double durableAssetCost = requiredAssetInventory.getMarginalCost() * selectedQuantity * (assetProduction.getDuration() / requiredAssetInventory.getAsset().getLifespan());
                     double marginalCost = (double) Math.round(10000 * durableAssetCost / assetProduction.getOutputQuantity()) / 10000;
                     addedMarginalCost += marginalCost;
-                    System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                    if (MainApplication.LOG_PRODUCTION) {
+                        System.out.println("\t\t\tMarginal Cost (" + selectedQuantity + " of " + assetRequirement.getAsset() + "): " + marginalCost);
+                    }
                 }
             }
         }
@@ -308,7 +317,9 @@ public class ProductionLine {
                     double employmentCost = requiredEmployment.getCost() * requiredHours * selectedFtesPercentage;
                     double marginalCost = (double) Math.round(10000 * employmentCost / assetProduction.getOutputQuantity()) / 10000;
                     addedMarginalCost += marginalCost;
-                    System.out.println("\t\t\tMarginal Cost (" + selectedFtes + " of " + laborRequirement.getJob() + "): " + marginalCost);
+                    if (MainApplication.LOG_PRODUCTION) {
+                        System.out.println("\t\t\tMarginal Cost (" + selectedFtes + " of " + laborRequirement.getJob() + "): " + marginalCost);
+                    }
                 }
             }
         }

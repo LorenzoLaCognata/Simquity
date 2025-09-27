@@ -17,6 +17,10 @@ public class Organization extends Agent {
         this.employmentList = new ArrayList<>();
     }
 
+    public String getName() {
+        return name;
+    }
+
     public List<Employment> getEmploymentList() {
         return employmentList;
     }
@@ -29,7 +33,7 @@ public class Organization extends Agent {
 
     @Override
     public String toString() {
-        return this.getClass().getSimpleName() + " - " + name;
+        return name;
     }
 
     public void addEmployment(Employment employment) {

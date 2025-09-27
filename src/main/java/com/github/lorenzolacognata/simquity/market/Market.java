@@ -1,8 +1,10 @@
 package com.github.lorenzolacognata.simquity.market;
 
+import com.github.lorenzolacognata.simquity.MainApplication;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
 
+import java.nio.charset.MalformedInputException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -56,7 +58,9 @@ public class Market {
 
             for (int di = 0; di < demandAgentAssetList.size(); di++) {
                 DemandAgentAsset demandAgentAsset = demandAgentAssetList.get(di);
-                System.out.println("\t\tDemand: " + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @ " + demandAgentAsset.getMaximumPrice());
+                if (MainApplication.LOG_MARKET_CLEARING & (demandAgentAsset.getAgentAsset().getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                    System.out.println("\t\tDemand: " + demandAgentAsset + ": " + demandAgentAsset.getQuantity() + " @ " + demandAgentAsset.getMaximumPrice());
+                }
                 matchDemandWithSupply(demandAgentAsset, supplyAssetInventoryList);
             }
 
@@ -75,7 +79,9 @@ public class Market {
             */
 
             if (tradedQuantity > 0) {
-                System.out.println("\t\tMarket Clearing: " + tradedQuantity + " @" + clearingPriceList.getLast());
+                if (MainApplication.LOG_MARKET_CLEARING & (demandAgentAssetList.getFirst().getAgentAsset().getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                    System.out.println("\t\tMarket Clearing: " + tradedQuantity + " @" + clearingPriceList.getLast());
+                }
             }
         }
 
@@ -94,8 +100,13 @@ public class Market {
 
             SupplyAssetInventory supplyAssetInventory = supplyAssetInventoryList.get(si);
             if (supplyAssetInventory.getQuantityLeft() > 0) {
-                System.out.println("\t\t\tSupply: " + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @ " + supplyAssetInventory.getMarginalCost());
+                if (MainApplication.LOG_MARKET_CLEARING & (supplyAssetInventory.getAgentAsset().getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                    System.out.println("\t\t\tSupply: " + supplyAssetInventory + ": " + supplyAssetInventory.getQuantity() + " @ " + supplyAssetInventory.getMarginalCost());
+                }
                 if (d.getMaximumPrice() < supplyAssetInventory.getMarginalCost()) {
+                    if (MainApplication.LOG_MARKET_CLEARING & (supplyAssetInventory.getAgentAsset().getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                        System.out.println("\t\t\t\t[ALERT] Demand Maximum Buying Price lower than Supply Marginal Cost");
+                    }
                     break;
                 }
 
@@ -104,7 +115,9 @@ public class Market {
                 supplyAssetInventory.removeQuantityLeft(traded);
                 tradedQuantity += traded;
                 clearingPriceList.addLast(supplyAssetInventory.getMarginalCost());
-                System.out.println("\t\t\t\tTraded: " + traded + " - Current Price: " + supplyAssetInventory.getMarginalCost());
+                if (MainApplication.LOG_MARKET_CLEARING & (supplyAssetInventory.getAgentAsset().getAsset().getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                    System.out.println("\t\t\t\tTraded: " + traded + " - Current Price: " + supplyAssetInventory.getMarginalCost());
+                }
             }
         }
     }
