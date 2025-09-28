@@ -8,6 +8,7 @@ import com.github.lorenzolacognata.simquity.asset.*;
 import com.github.lorenzolacognata.simquity.inventory.AgentAsset;
 import com.github.lorenzolacognata.simquity.inventory.AssetInventory;
 import com.github.lorenzolacognata.simquity.labor.JobType;
+import com.github.lorenzolacognata.simquity.market.Transaction;
 import com.github.lorenzolacognata.simquity.production.AssetProduction;
 import com.github.lorenzolacognata.simquity.production.ProductionLine;
 import com.github.lorenzolacognata.simquity.labor.Employment;
@@ -42,6 +43,7 @@ public class MainApplication extends Application {
     static public boolean LOG_PRODUCTION = false;
     static public boolean LOG_MARKET_CLEARING = false;
     static public boolean LOG_ASSETS = false;
+    static public boolean LOG_TRANSACTIONS = false;
     static public AssetType LOG_SELECTED_ASSET_TYPE = null;
     static public int WEEKS = 3;
     private static Label label;
@@ -392,46 +394,61 @@ public class MainApplication extends Application {
 
     }
 
+    public static void logif(boolean logging_flag, AssetType assetType, String string) {
+        if (logging_flag & (assetType == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+            System.out.println(string);
+        }
+    }
+
     public static void logging() {
 
-        // SUMMARY
+        System.out.println("ASSETS");
 
-        if (LOG_ASSETS) {
-            System.out.println("ASSETS");
-            for (Asset asset : assets) {
+        for (Asset asset : assets) {
 
-                if ((asset.getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+            System.out.println("\t" + asset);
 
-                    System.out.println("\t" + asset);
-                    if (!asset.getAssetProductionList().isEmpty()) {
-                        System.out.println("\t\tProduction:");
-                        for (AssetProduction assetProduction : asset.getAssetProductionList()) {
-                            if (asset instanceof Good) {
-                                System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity() + " " + ((Good) asset).getUnitOfMeasure());
-                            } else {
-                                System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity());
+            if (LOG_PRODUCTION & (asset.getAssetType() == MainApplication.LOG_SELECTED_ASSET_TYPE || MainApplication.LOG_SELECTED_ASSET_TYPE == null)) {
+                if (!asset.getAssetProductionList().isEmpty()) {
+                    System.out.println("\t\tProduction:");
+                    for (AssetProduction assetProduction : asset.getAssetProductionList()) {
+                        if (asset instanceof Good) {
+                            System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity() + " " + ((Good) asset).getUnitOfMeasure());
+                        } else {
+                            System.out.println("\t\t\tOutput Qty: " + assetProduction.getOutputQuantity());
+                        }
+                        if (!assetProduction.getConsumableAssetRequirementList().isEmpty()) {
+                            System.out.println("\t\t\tConsumable Asset:");
+                            for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
+                                System.out.println("\t\t\t\t" + consumableAssetRequirement);
                             }
-                            if (!assetProduction.getConsumableAssetRequirementList().isEmpty()) {
-                                System.out.println("\t\t\tConsumable Asset:");
-                                for (AssetRequirement consumableAssetRequirement : assetProduction.getConsumableAssetRequirementList()) {
-                                    System.out.println("\t\t\t\t" + consumableAssetRequirement);
-                                }
+                        }
+                        if (!assetProduction.getDurableAssetRequirementList().isEmpty()) {
+                            System.out.println("\t\t\tDurable Asset:");
+                            for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
+                                System.out.println("\t\t\t\t" + durableAssetRequirement);
                             }
-                            if (!assetProduction.getDurableAssetRequirementList().isEmpty()) {
-                                System.out.println("\t\t\tDurable Asset:");
-                                for (AssetRequirement durableAssetRequirement : assetProduction.getDurableAssetRequirementList()) {
-                                    System.out.println("\t\t\t\t" + durableAssetRequirement);
-                                }
-                            }
-                            if (!assetProduction.getLaborRequirementList().isEmpty()) {
-                                System.out.println("\t\t\tLabor:");
-                                for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
-                                    System.out.println("\t\t\t\t" + laborRequirement);
-                                }
+                        }
+                        if (!assetProduction.getLaborRequirementList().isEmpty()) {
+                            System.out.println("\t\t\tLabor:");
+                            for (LaborRequirement laborRequirement : assetProduction.getLaborRequirementList()) {
+                                System.out.println("\t\t\t\t" + laborRequirement);
                             }
                         }
                     }
                 }
+            }
+
+            if (!asset.getMarket().getTransactionList().isEmpty()) {
+                logif(LOG_TRANSACTIONS, asset.getAssetType(), "\t\tTransactions:");
+                double inputQuantity = 0;
+                double outputQuantity = 0;
+                for (Transaction transaction : asset.getMarket().getTransactionList()) {
+                    inputQuantity += transaction.getInputQuantity();
+                    outputQuantity += transaction.getOutputQuantity();
+                    logif(LOG_TRANSACTIONS, asset.getAssetType(), "\t\t\t" + transaction.getInputAgent() + " (" + transaction.getInputQuantity() +") <-> " + transaction.getOutputAgent() + " (" + transaction.getOutputQuantity()+ " " + transaction.getOutputAsset() + ")");
+                }
+                System.out.println("\t\tSold " + inputQuantity + " for " + outputQuantity/inputQuantity);
             }
         }
 

@@ -7,16 +7,23 @@ public class Transaction {
 
     private final Agent inputAgent;
     private final double inputQuantity;
-    private final Asset outputAsset;
     private final Agent outputAgent;
-    private final double outputQuantity;
+    private final Asset outputAsset;
+    private double outputQuantity;
 
-    public Transaction(Agent inputAgent, double inputQuantity, Asset outputAsset, Agent outputAgent, double outputQuantity) {
+    public Transaction(Agent inputAgent, double inputQuantity, Agent outputAgent, Asset outputAsset, double outputQuantity) {
         this.inputAgent = inputAgent;
         this.inputQuantity = inputQuantity;
-        this.outputAsset = outputAsset;
         this.outputAgent = outputAgent;
+        this.outputAsset = outputAsset;
         this.outputQuantity = outputQuantity;
+    }
+
+    public Transaction(Agent inputAgent, double inputQuantity, Agent outputAgent, Asset outputAsset) {
+        this.inputAgent = inputAgent;
+        this.inputQuantity = inputQuantity;
+        this.outputAgent = outputAgent;
+        this.outputAsset = outputAsset;
     }
 
     public Agent getInputAgent() {
@@ -27,10 +34,6 @@ public class Transaction {
         return inputQuantity;
     }
 
-    public Asset getOutputAsset() {
-        return outputAsset;
-    }
-
     public Agent getOutputAgent() {
         return outputAgent;
     }
@@ -38,4 +41,13 @@ public class Transaction {
     public double getOutputQuantity() {
         return outputQuantity;
     }
+
+    public Asset getOutputAsset() {
+        return outputAsset;
+    }
+
+    public void setOutputQuantity(double outputQuantity) {
+        this.outputQuantity = outputQuantity;
+    }
+
 }
