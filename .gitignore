@@ -3,15 +3,15 @@ backend/target/
 *.class
 
 # IDE
+.vscode/
 .idea/
 *.iml
-.vscode/
 
-# Node / frontend (added ahead of time, for tomorrow)
+# Node / frontend
 frontend/node_modules/
 frontend/dist/
 
-# Local secrets - never commit these (see SECURITY.md)
+# Local secrets
 .env
 .env.local
 local-env.sh
