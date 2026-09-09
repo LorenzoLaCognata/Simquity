@@ -1,0 +1,19 @@
+# Java / Maven
+backend/target/
+*.class
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node / frontend (added ahead of time, for tomorrow)
+frontend/node_modules/
+frontend/dist/
+
+# Local secrets - never commit these (see SECURITY.md)
+.env
+.env.local
+local-env.sh
+
+.DS_Store
