@@ -28,29 +28,39 @@ function HistoryChart({ day }) {
         ),
         datasets: [
           {
-            label: 'Simulated day',
             data: history.map((point) => point.day),
-            borderColor: '#2a78d6',
-            backgroundColor: 'rgba(42,120,214,0.1)',
+            borderColor: '#2a5db0',
+            backgroundColor: 'rgba(42, 93, 176, 0.08)',
             fill: true,
-            tension: 0.2,
-            pointRadius: 2,
+            tension: 0.3,
+            borderWidth: 2,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointBackgroundColor: '#2a5db0',
           },
         ],
       },
       options: {
         responsive: true,
         animation: false,
+        plugins: { legend: { display: false } },
         scales: {
-          y: { beginAtZero: true, title: { display: true, text: 'Day' } },
-          x: { title: { display: true, text: 'Real time recorded' } },
+          y: {
+            beginAtZero: true,
+            grid: { color: '#e3e1da' },
+            ticks: { color: '#7a7870' },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: '#7a7870', maxTicksLimit: 6 },
+          },
         },
       },
     })
   }, [history])
 
   if (history.length === 0) {
-    return <p>No history yet - click Play to start generating data.</p>
+    return <p className="empty-note">No history yet - click Play to start generating data.</p>
   }
 
   return <canvas ref={canvasRef} height="120"></canvas>
