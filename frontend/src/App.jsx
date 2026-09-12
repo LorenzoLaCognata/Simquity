@@ -1,20 +1,12 @@
 import { useEffect, useState } from 'react'
 import HistoryChart from './HistoryChart.jsx'
+import WorldSummary from './WorldSummary.jsx'
 import { API_URL } from './config.js'
+import './App.css'
 
 function App() {
-  const [message, setMessage] = useState(null)
-  const [error, setError] = useState(null)
-
   const [day, setDay] = useState(null)
   const [running, setRunning] = useState(false)
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/hello`)
-      .then((response) => response.json())
-      .then((data) => setMessage(data.message))
-      .catch(() => setError('Could not reach the backend. Is it running on port 8080?'))
-  }, [])
 
   useEffect(() => {
     fetch(`${API_URL}/api/simulation/state`)
@@ -43,26 +35,28 @@ function App() {
   }
 
   return (
-    <div style={{ fontFamily: 'sans-serif', padding: '2rem' }}>
-      <h1>Simquity</h1>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {!error && !message && <p>Waiting for the backend...</p>}
-      {message && <p><strong>{message}</strong></p>}
+    <div className="app">
+      <header className="app-header">
+        <h1>Simquity</h1>
+        <div className="clock-bar">
+          <button onClick={play} disabled={running}>Play</button>
+          <button onClick={stop} disabled={!running}>Stop</button>
+          <span className="day">Day {day === null ? '...' : day}</span>
+          <span className="status">{running ? 'Running' : 'Stopped'}</span>
+        </div>
+      </header>
 
-      <hr style={{ margin: '2rem 0' }} />
+      <section>
+        <h2>World at a glance</h2>
+        <WorldSummary />
+      </section>
 
-      <p style={{ fontSize: '2rem', margin: '0.5rem 0' }}>
-        Day {day === null ? '...' : day}
-      </p>
-      <p>Status: <strong>{running ? 'Running' : 'Stopped'}</strong></p>
-      <button onClick={play} disabled={running} style={{ marginRight: '0.5rem' }}>
-        Play
-      </button>
-      <button onClick={stop} disabled={!running}>
-        Stop
-      </button>
-
-      <HistoryChart day={day} />
+      <section>
+        <h2>Day over time</h2>
+        <div className="chart-card">
+          <HistoryChart day={day} />
+        </div>
+      </section>
     </div>
   )
 }
