@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Play, Square } from 'lucide-react'
+import { Play, Square, LayoutGrid, Map as MapIcon, LineChart } from 'lucide-react'
 import HistoryChart from './HistoryChart.jsx'
 import WorldSummary from './WorldSummary.jsx'
 import WorldMap from './WorldMap.jsx'
 import { API_URL } from './config.js'
 import './App.css'
 
+const TABS = [
+  { id: 'counts', label: 'Counts', icon: LayoutGrid },
+  { id: 'map', label: 'Map', icon: MapIcon },
+  { id: 'chart', label: 'Chart', icon: LineChart },
+]
+
 function App() {
   const [day, setDay] = useState(null)
   const [running, setRunning] = useState(false)
+  const [activeTab, setActiveTab] = useState('counts')
 
   useEffect(() => {
     fetch(`${API_URL}/api/simulation/state`)
@@ -52,23 +59,31 @@ function App() {
         </div>
       </header>
 
-      <section>
-        <h2>World at a glance</h2>
-        <WorldSummary />
-      </section>
+      <nav className="tab-bar">
+        {TABS.map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            className={activeTab === id ? 'tab active' : 'tab'}
+            onClick={() => setActiveTab(id)}
+          >
+            <Icon size={16} />
+            {label}
+          </button>
+        ))}
+      </nav>
 
       <section>
-        <h2>World map</h2>
-        <div className="chart-card">
-          <WorldMap />
-        </div>
-      </section>
-
-      <section>
-        <h2>Day over time</h2>
-        <div className="chart-card">
-          <HistoryChart day={day} />
-        </div>
+        {activeTab === 'counts' && <WorldSummary />}
+        {activeTab === 'map' && (
+          <div className="chart-card">
+            <WorldMap />
+          </div>
+        )}
+        {activeTab === 'chart' && (
+          <div className="chart-card">
+            <HistoryChart day={day} />
+          </div>
+        )}
       </section>
     </div>
   )

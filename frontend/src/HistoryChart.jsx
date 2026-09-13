@@ -2,6 +2,38 @@ import { useEffect, useRef, useState } from 'react'
 import Chart from 'chart.js/auto'
 import { API_URL } from './config.js'
 
+const HOURS_IN_WINDOW = 7 * 24
+
+function buildHourlyBuckets(history) {
+  const now = Date.now()
+  const hourMs = 60 * 60 * 1000
+  const sorted = [...history].sort(
+    (a, b) => new Date(a.recordedAt) - new Date(b.recordedAt)
+  )
+
+  const labels = []
+  const data = []
+  let historyIndex = 0
+  let lastKnownDay = 0
+
+  for (let hoursAgo = HOURS_IN_WINDOW; hoursAgo >= 0; hoursAgo--) {
+    const bucketTime = now - hoursAgo * hourMs
+    while (
+      historyIndex < sorted.length &&
+      new Date(sorted[historyIndex].recordedAt).getTime() <= bucketTime
+    ) {
+      lastKnownDay = sorted[historyIndex].day
+      historyIndex++
+    }
+    labels.push(
+      new Date(bucketTime).toLocaleString([], { weekday: 'short', hour: '2-digit' })
+    )
+    data.push(lastKnownDay)
+  }
+
+  return { labels, data }
+}
+
 function HistoryChart({ day }) {
   const canvasRef = useRef(null)
   const chartInstance = useRef(null)
@@ -15,27 +47,24 @@ function HistoryChart({ day }) {
 
   useEffect(() => {
     if (!canvasRef.current) return
+    if (chartInstance.current) chartInstance.current.destroy()
 
-    if (chartInstance.current) {
-      chartInstance.current.destroy()
-    }
+    const { labels, data } = buildHourlyBuckets(history)
 
     chartInstance.current = new Chart(canvasRef.current, {
       type: 'line',
       data: {
-        labels: history.map((point) =>
-          new Date(point.recordedAt).toLocaleTimeString()
-        ),
+        labels,
         datasets: [
           {
-            data: history.map((point) => point.day),
+            data,
             borderColor: '#2a5db0',
             backgroundColor: 'rgba(42, 93, 176, 0.08)',
             fill: true,
-            tension: 0.3,
+            tension: 0.15,
             borderWidth: 2,
             pointRadius: 0,
-            pointHoverRadius: 4,
+            pointHoverRadius: 3,
             pointBackgroundColor: '#2a5db0',
           },
         ],
@@ -52,18 +81,14 @@ function HistoryChart({ day }) {
           },
           x: {
             grid: { display: false },
-            ticks: { color: '#7a7870', maxTicksLimit: 6 },
+            ticks: { color: '#7a7870', maxTicksLimit: 7 },
           },
         },
       },
     })
   }, [history])
 
-  if (history.length === 0) {
-    return <p className="empty-note">No history yet - click Play to start generating data.</p>
-  }
-
-  return <canvas ref={canvasRef} height="120"></canvas>
+  return <canvas ref={canvasRef} height="140"></canvas>
 }
 
 export default HistoryChart
