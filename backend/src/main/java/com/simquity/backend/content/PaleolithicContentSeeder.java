@@ -13,15 +13,18 @@ public class PaleolithicContentSeeder implements CommandLineRunner {
     private final ProfessionRepository professionRepository;
     private final SkillRepository skillRepository;
     private final ActivityTypeRepository activityTypeRepository;
+    private final EventTypeRepository eventTypeRepository;
 
     public PaleolithicContentSeeder(SectorRepository sectorRepository,
                                      ProfessionRepository professionRepository,
                                      SkillRepository skillRepository,
-                                     ActivityTypeRepository activityTypeRepository) {
+                                     ActivityTypeRepository activityTypeRepository,
+                                     EventTypeRepository eventTypeRepository) {
         this.sectorRepository = sectorRepository;
         this.professionRepository = professionRepository;
         this.skillRepository = skillRepository;
         this.activityTypeRepository = activityTypeRepository;
+        this.eventTypeRepository = eventTypeRepository;
     }
 
     @Override
@@ -46,6 +49,9 @@ public class PaleolithicContentSeeder implements CommandLineRunner {
         activityType("Forage Plants", "foragePlants");
         activityType("Knap Flint", "knapFlint");
         activityType("Tan Hide", "tanHide");
+
+        eventType("Agent Spawned");
+        eventType("Activity Yield");
     }
 
     private Sector sector(String name, String code) {
@@ -74,5 +80,11 @@ public class PaleolithicContentSeeder implements CommandLineRunner {
         at.setName(name);
         at.setBehaviorClass(behaviorClass);
         activityTypeRepository.save(at);
+    }
+
+    private void eventType(String name) {
+        EventType et = new EventType();
+        et.setName(name);
+        eventTypeRepository.save(et);
     }
 }

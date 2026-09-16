@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Play, Square, LayoutGrid, Map as MapIcon, LineChart } from 'lucide-react'
+import { Play, Square, LayoutGrid, Map as MapIcon, LineChart, ScrollText } from 'lucide-react'
 import HistoryChart from './HistoryChart.jsx'
 import WorldSummary from './WorldSummary.jsx'
 import WorldMap from './WorldMap.jsx'
+import EventLog from './EventLog.jsx'
 import { API_URL } from './config.js'
 import './App.css'
 
@@ -10,6 +11,7 @@ const TABS = [
   { id: 'counts', label: 'Counts', icon: LayoutGrid },
   { id: 'map', label: 'Map', icon: MapIcon },
   { id: 'chart', label: 'Chart', icon: LineChart },
+  { id: 'log', label: 'Log', icon: ScrollText },
 ]
 
 function App() {
@@ -82,6 +84,11 @@ function App() {
         {activeTab === 'chart' && (
           <div className="chart-card">
             <HistoryChart day={day} />
+          </div>
+        )}
+        {activeTab === 'log' && (
+          <div className="chart-card">
+            <EventLog day={day} />
           </div>
         )}
       </section>

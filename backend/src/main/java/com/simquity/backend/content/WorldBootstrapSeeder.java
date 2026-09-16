@@ -38,17 +38,23 @@ public class WorldBootstrapSeeder implements CommandLineRunner {
     private final ActivityRepository activityRepository;
     private final ProfessionRepository professionRepository;
     private final ActivityTypeRepository activityTypeRepository;
+    private final EventTypeRepository eventTypeRepository;
+    private final EventPublisher eventPublisher;
 
     public WorldBootstrapSeeder(RegionRepository regionRepository,
                                  AgentRepository agentRepository,
                                  ActivityRepository activityRepository,
                                  ProfessionRepository professionRepository,
-                                 ActivityTypeRepository activityTypeRepository) {
+                                 ActivityTypeRepository activityTypeRepository,
+                                 EventTypeRepository eventTypeRepository,
+                                 EventPublisher eventPublisher) {
         this.regionRepository = regionRepository;
         this.agentRepository = agentRepository;
         this.activityRepository = activityRepository;
         this.professionRepository = professionRepository;
         this.activityTypeRepository = activityTypeRepository;
+        this.eventTypeRepository = eventTypeRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -61,6 +67,8 @@ public class WorldBootstrapSeeder implements CommandLineRunner {
 
         List<Profession> professions = professionRepository.findAll();
         List<ActivityType> activityTypes = activityTypeRepository.findAll();
+        EventType agentSpawnedType = eventTypeRepository.findByName("Agent Spawned")
+                .orElseThrow(() -> new IllegalStateException("Missing EventType: Agent Spawned"));
 
         for (int i = 0; i < POPULATION; i++) {
             String professionName = PROFESSION_MIX.get(i % PROFESSION_MIX.size());
@@ -80,6 +88,9 @@ public class WorldBootstrapSeeder implements CommandLineRunner {
             activity.setStartDate(LocalDate.now());
             activity.setStatus("active");
             activityRepository.save(activity);
+
+            eventPublisher.publish(agentSpawnedType, "%s (%s) arrived in %s"
+                    .formatted(agent.getName(), professionName, region.getName()));
         }
     }
 

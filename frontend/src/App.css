@@ -157,3 +157,39 @@ section > h2 {
   border-color: var(--border);
   color: var(--accent);
 }
+
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.log-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.5rem 0.1rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.88rem;
+}
+
+.log-time {
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.log-type {
+  color: var(--accent);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.log-description {
+  color: var(--text);
+}
